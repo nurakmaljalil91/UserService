@@ -23,8 +23,43 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(100)
             .IsRequired();
 
+        builder.Property(u => u.NormalizedUsername)
+            .HasMaxLength(100)
+            .IsRequired();
+
         builder.Property(u => u.Email)
             .HasMaxLength(256)
+            .IsRequired();
+
+        builder.Property(u => u.NormalizedEmail)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        builder.Property(u => u.EmailConfirm)
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        builder.Property(u => u.PhoneNumber)
+            .HasMaxLength(50);
+
+        builder.Property(u => u.PhoneNumberConfirm)
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        builder.Property(u => u.TwoFactorEnabled)
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        builder.Property(u => u.AccessFailedCount)
+            .HasDefaultValue(0)
+            .IsRequired();
+
+        builder.Property(u => u.IsLocked)
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        builder.Property(u => u.IsDeleted)
+            .HasDefaultValue(false)
             .IsRequired();
 
         builder.Property(u => u.PasswordHash)
@@ -32,6 +67,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder.HasIndex(u => u.Username).IsUnique();
+        builder.HasIndex(u => u.NormalizedUsername).IsUnique();
         builder.HasIndex(u => u.Email).IsUnique();
+        builder.HasIndex(u => u.NormalizedEmail).IsUnique();
     }
 }

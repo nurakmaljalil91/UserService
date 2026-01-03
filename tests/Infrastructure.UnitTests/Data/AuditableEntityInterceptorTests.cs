@@ -154,7 +154,7 @@ public class AuditableEntityInterceptorTests
         }
     }
 
-    private sealed class TestAuditableEntity : BaseAuditableEntity
+    private sealed class TestAuditableEntity : BaseEntity<long>
     {
         public string? Title { get; set; }
 

@@ -33,6 +33,27 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     /// <inheritdoc />
     public DbSet<User> Users => Set<User>();
 
+    /// <inheritdoc />
+    public DbSet<Role> Roles => Set<Role>();
+
+    /// <inheritdoc />
+    public DbSet<Permission> Permissions => Set<Permission>();
+
+    /// <inheritdoc />
+    public DbSet<Group> Groups => Set<Group>();
+
+    /// <inheritdoc />
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+
+    /// <inheritdoc />
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+
+    /// <inheritdoc />
+    public DbSet<UserGroup> UserGroups => Set<UserGroup>();
+
+    /// <inheritdoc />
+    public DbSet<GroupRole> GroupRoles => Set<GroupRole>();
+
     /// <summary>
     /// Configures the entity model for the context.
     /// </summary>
