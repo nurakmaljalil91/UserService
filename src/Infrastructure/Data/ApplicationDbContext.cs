@@ -34,6 +34,27 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<User> Users => Set<User>();
 
     /// <inheritdoc />
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+
+    /// <inheritdoc />
+    public DbSet<Session> Sessions => Set<Session>();
+
+    /// <inheritdoc />
+    public DbSet<ContactMethod> ContactMethods => Set<ContactMethod>();
+
+    /// <inheritdoc />
+    public DbSet<Address> Addresses => Set<Address>();
+
+    /// <inheritdoc />
+    public DbSet<LoginAttempt> LoginAttempts => Set<LoginAttempt>();
+
+    /// <inheritdoc />
+    public DbSet<Consent> Consents => Set<Consent>();
+
+    /// <inheritdoc />
+    public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
+
+    /// <inheritdoc />
     public DbSet<Role> Roles => Set<Role>();
 
     /// <inheritdoc />

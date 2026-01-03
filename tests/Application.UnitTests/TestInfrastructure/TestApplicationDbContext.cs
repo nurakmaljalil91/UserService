@@ -30,6 +30,34 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
 
     public DbSet<User> Users => throw new NotImplementedException();
 
+    public DbSet<UserProfile> UserProfiles => throw new NotImplementedException();
+
+    public DbSet<Session> Sessions => throw new NotImplementedException();
+
+    public DbSet<ContactMethod> ContactMethods => throw new NotImplementedException();
+
+    public DbSet<Address> Addresses => throw new NotImplementedException();
+
+    public DbSet<LoginAttempt> LoginAttempts => throw new NotImplementedException();
+
+    public DbSet<Consent> Consents => throw new NotImplementedException();
+
+    public DbSet<UserPreference> UserPreferences => throw new NotImplementedException();
+
+    public DbSet<Role> Roles => throw new NotImplementedException();
+
+    public DbSet<Permission> Permissions => throw new NotImplementedException();
+
+    public DbSet<Group> Groups => throw new NotImplementedException();
+
+    public DbSet<UserRole> UserRoles => throw new NotImplementedException();
+
+    public DbSet<RolePermission> RolePermissions => throw new NotImplementedException();
+
+    public DbSet<UserGroup> UserGroups => throw new NotImplementedException();
+
+    public DbSet<GroupRole> GroupRoles => throw new NotImplementedException();
+
     /// <summary>
     /// Configures the entity mappings for the context.
     /// </summary>

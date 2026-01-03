@@ -24,6 +24,41 @@ public interface IApplicationDbContext
     DbSet<User> Users { get; }
 
     /// <summary>
+    /// Gets the set of <see cref="UserProfile"/> entities.
+    /// </summary>
+    DbSet<UserProfile> UserProfiles { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="Session"/> entities.
+    /// </summary>
+    DbSet<Session> Sessions { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="ContactMethod"/> entities.
+    /// </summary>
+    DbSet<ContactMethod> ContactMethods { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="Address"/> entities.
+    /// </summary>
+    DbSet<Address> Addresses { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="LoginAttempt"/> entities.
+    /// </summary>
+    DbSet<LoginAttempt> LoginAttempts { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="Consent"/> entities.
+    /// </summary>
+    DbSet<Consent> Consents { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="UserPreference"/> entities.
+    /// </summary>
+    DbSet<UserPreference> UserPreferences { get; }
+
+    /// <summary>
     /// Gets the set of <see cref="Role"/> entities.
     /// </summary>
     DbSet<Role> Roles { get; }

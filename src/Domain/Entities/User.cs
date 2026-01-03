@@ -79,4 +79,39 @@ public class User : BaseEntity<Guid>
     /// Gets the groups the user belongs to.
     /// </summary>
     public IList<UserGroup> UserGroups { get; private set; } = new List<UserGroup>();
+
+    /// <summary>
+    /// Gets or sets the user's profile details.
+    /// </summary>
+    public UserProfile? Profile { get; set; }
+
+    /// <summary>
+    /// Gets the active sessions for the user.
+    /// </summary>
+    public IList<Session> Sessions { get; private set; } = new List<Session>();
+
+    /// <summary>
+    /// Gets the contact methods associated with the user.
+    /// </summary>
+    public IList<ContactMethod> ContactMethods { get; private set; } = new List<ContactMethod>();
+
+    /// <summary>
+    /// Gets the addresses associated with the user.
+    /// </summary>
+    public IList<Address> Addresses { get; private set; } = new List<Address>();
+
+    /// <summary>
+    /// Gets the login attempts for the user.
+    /// </summary>
+    public IList<LoginAttempt> LoginAttempts { get; private set; } = new List<LoginAttempt>();
+
+    /// <summary>
+    /// Gets the consents recorded for the user.
+    /// </summary>
+    public IList<Consent> Consents { get; private set; } = new List<Consent>();
+
+    /// <summary>
+    /// Gets the preferences associated with the user.
+    /// </summary>
+    public IList<UserPreference> UserPreferences { get; private set; } = new List<UserPreference>();
 }
