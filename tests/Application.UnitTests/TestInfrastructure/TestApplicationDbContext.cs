@@ -28,35 +28,35 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     /// </summary>
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
-    public DbSet<User> Users => throw new NotImplementedException();
+    public DbSet<User> Users => Set<User>();
 
-    public DbSet<UserProfile> UserProfiles => throw new NotImplementedException();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
-    public DbSet<Session> Sessions => throw new NotImplementedException();
+    public DbSet<Session> Sessions => Set<Session>();
 
-    public DbSet<ContactMethod> ContactMethods => throw new NotImplementedException();
+    public DbSet<ContactMethod> ContactMethods => Set<ContactMethod>();
 
-    public DbSet<Address> Addresses => throw new NotImplementedException();
+    public DbSet<Address> Addresses => Set<Address>();
 
-    public DbSet<LoginAttempt> LoginAttempts => throw new NotImplementedException();
+    public DbSet<LoginAttempt> LoginAttempts => Set<LoginAttempt>();
 
-    public DbSet<Consent> Consents => throw new NotImplementedException();
+    public DbSet<Consent> Consents => Set<Consent>();
 
-    public DbSet<UserPreference> UserPreferences => throw new NotImplementedException();
+    public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
 
-    public DbSet<Role> Roles => throw new NotImplementedException();
+    public DbSet<Role> Roles => Set<Role>();
 
-    public DbSet<Permission> Permissions => throw new NotImplementedException();
+    public DbSet<Permission> Permissions => Set<Permission>();
 
-    public DbSet<Group> Groups => throw new NotImplementedException();
+    public DbSet<Group> Groups => Set<Group>();
 
-    public DbSet<UserRole> UserRoles => throw new NotImplementedException();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
 
-    public DbSet<RolePermission> RolePermissions => throw new NotImplementedException();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
-    public DbSet<UserGroup> UserGroups => throw new NotImplementedException();
+    public DbSet<UserGroup> UserGroups => Set<UserGroup>();
 
-    public DbSet<GroupRole> GroupRoles => throw new NotImplementedException();
+    public DbSet<GroupRole> GroupRoles => Set<GroupRole>();
 
     /// <summary>
     /// Configures the entity mappings for the context.
@@ -79,5 +79,21 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
                 .WithMany(x => x.Items)
                 .HasForeignKey(x => x.ListId);
         });
+
+        modelBuilder.Entity<User>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<UserProfile>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Session>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<ContactMethod>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Address>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<LoginAttempt>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Consent>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<UserPreference>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Role>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Permission>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Group>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<UserRole>(builder => builder.HasKey(x => new { x.UserId, x.RoleId }));
+        modelBuilder.Entity<RolePermission>(builder => builder.HasKey(x => new { x.RoleId, x.PermissionId }));
+        modelBuilder.Entity<UserGroup>(builder => builder.HasKey(x => new { x.UserId, x.GroupId }));
+        modelBuilder.Entity<GroupRole>(builder => builder.HasKey(x => new { x.GroupId, x.RoleId }));
     }
 }

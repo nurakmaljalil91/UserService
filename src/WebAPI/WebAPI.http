@@ -88,8 +88,30 @@ Content-Type: application/json
 
 {
   "username": "admin",
-  "email": "admin@localhost.com",
-  "roles": [ "Admin" ]
+  "email": "admin@example.com",
+  "password": "Admin123!"
+}
+
+###
+
+POST {{WebAPI_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "testuser@example.com",
+  "password": "Test123!"
+}
+
+###
+
+POST {{WebAPI_HostAddress}}/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "resetToken": "reset-token",
+  "newPassword": "User123!"
 }
 
 ###

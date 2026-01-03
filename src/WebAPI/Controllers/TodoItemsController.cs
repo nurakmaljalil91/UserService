@@ -14,7 +14,7 @@ namespace WebAPI.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class TodoItemsController : ControllerBase
 {
     private readonly IMediator _mediator;

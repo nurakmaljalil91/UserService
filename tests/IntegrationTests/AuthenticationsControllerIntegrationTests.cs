@@ -33,7 +33,7 @@ public class AuthenticationsControllerIntegrationTests : ApiTestBase
         var username = $"user-{unique}";
         var email = $"user-{unique}@example.com";
 
-        var registerResponse = await client.PostAsJsonAsync("/api/Auth/register", new
+        var registerResponse = await client.PostAsJsonAsync("/api/Authentications/register", new
         {
             Username = username,
             Email = email,
@@ -42,7 +42,7 @@ public class AuthenticationsControllerIntegrationTests : ApiTestBase
 
         Assert.Equal(HttpStatusCode.OK, registerResponse.StatusCode);
 
-        var response = await client.PostAsJsonAsync("/api/Auth/login", new
+        var response = await client.PostAsJsonAsync("/api/Authentications/login", new
         {
             Username = username,
             Email = email,

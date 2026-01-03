@@ -23,6 +23,7 @@ public class TodoItemsControllerIntegrationTests : ApiTestBase
     /// Performs a full CRUD flow integration test for the TodoItemsController.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    [Fact]
     public async Task TodoItems_FullFlow_Works()
     {
         using var client = await CreateAuthenticatedClientAsync();

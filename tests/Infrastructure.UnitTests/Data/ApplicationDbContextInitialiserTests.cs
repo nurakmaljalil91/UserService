@@ -1,4 +1,5 @@
 using Infrastructure.Data;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -21,7 +22,8 @@ public class ApplicationDbContextInitialiserTests
 
         await using var context = new ApplicationDbContext(options);
         var logger = NullLogger<ApplicationDbContextInitialiser>.Instance;
-        var initialiser = new ApplicationDbContextInitialiser(logger, context);
+        var passwordHasher = new PasswordHasherService();
+        var initialiser = new ApplicationDbContextInitialiser(logger, context, passwordHasher);
 
         await initialiser.TrySeedAsync();
 
