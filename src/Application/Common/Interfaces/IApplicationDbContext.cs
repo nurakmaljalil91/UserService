@@ -19,6 +19,11 @@ public interface IApplicationDbContext
     DbSet<TodoItem> TodoItems { get; }
 
     /// <summary>
+    /// Gets the set of <see cref="User"/> entities.
+    /// </summary>
+    DbSet<User> Users { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>

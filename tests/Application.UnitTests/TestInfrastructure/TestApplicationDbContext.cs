@@ -28,6 +28,8 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     /// </summary>
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
+    public DbSet<User> Users => throw new NotImplementedException();
+
     /// <summary>
     /// Configures the entity mappings for the context.
     /// </summary>

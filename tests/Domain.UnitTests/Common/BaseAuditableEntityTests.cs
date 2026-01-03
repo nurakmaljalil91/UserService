@@ -23,14 +23,12 @@ public class BaseAuditableEntityTests
 
         var entity = new TestAuditableEntity
         {
-            Id = 7,
             CreatedDate = created,
             CreatedBy = "creator",
             UpdatedDate = updated,
             UpdatedBy = "updater"
         };
 
-        Assert.Equal(7, entity.Id);
         Assert.Equal(created, entity.CreatedDate);
         Assert.Equal("creator", entity.CreatedBy);
         Assert.Equal(updated, entity.UpdatedDate);

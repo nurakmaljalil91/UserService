@@ -81,6 +81,7 @@ public static class DependencyInjection
 
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IClockService, ClockService>();
+        services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 
         return services;
     }

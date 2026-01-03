@@ -7,7 +7,7 @@ namespace Domain.UnitTests.Common;
 /// </summary>
 public class BaseEntityTests
 {
-    private sealed class TestEntity : BaseEntity
+    private sealed class TestEntity : BaseEntity<long>
     {
     }
 

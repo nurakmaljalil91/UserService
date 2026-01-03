@@ -8,7 +8,7 @@ namespace Domain.Entities;
 /// <summary>
 /// Represents a to-do item within a to-do list, including details such as title, note, priority, reminder, and completion status.
 /// </summary>
-public class TodoItem : BaseAuditableEntity
+public class TodoItem : BaseEntity<long>
 {
     /// <summary>
     /// Gets or sets the identifier of the to-do list to which this item belongs.

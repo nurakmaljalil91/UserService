@@ -6,7 +6,7 @@ namespace Domain.Common;
 /// <summary>
 /// Represents an auditable entity with creation and update metadata.
 /// </summary>
-public abstract class BaseAuditableEntity : BaseEntity
+public abstract class BaseAuditableEntity
 {
     /// <summary>
     /// Gets or sets the date and time when the entity was created.

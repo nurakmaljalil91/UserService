@@ -8,9 +8,9 @@ namespace Domain.Entities;
 
 /// <summary>
 /// Represents a to-do list containing a collection of <see cref="TodoItem"/>s, a title, and a color.
-/// Inherits audit properties from <see cref="BaseAuditableEntity"/>.
+/// Inherits audit properties from <see cref="BaseEntity{TKey}"/>.
 /// </summary>
-public class TodoList : BaseAuditableEntity
+public class TodoList : BaseEntity<long>
 {
     /// <summary>
     /// Gets or sets the title of the to-do list.
