@@ -12,6 +12,9 @@ using Application.TodoItems.Queries;
 using Application.TodoLists.Commands;
 using Application.TodoLists.Models;
 using Application.TodoLists.Queries;
+using Application.Users.Commands;
+using Application.Users.Models;
+using Application.Users.Queries;
 using Domain.Common;
 using FluentValidation;
 using Mediator;
@@ -41,6 +44,11 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<LoginCommand, BaseResponse<LoginResponse>>, LoginCommandHandler>();
         services.AddScoped<IRequestHandler<RegisterCommand, BaseResponse<string>>, RegisterCommandHandler>();
         services.AddScoped<IRequestHandler<ResetPasswordCommand, BaseResponse<string>>, ResetPasswordCommandHandler>();
+        services.AddScoped<IRequestHandler<CreateUserCommand, BaseResponse<UserDto>>, CreateUserCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateUserCommand, BaseResponse<UserDto>>, UpdateUserCommandHandler>();
+        services.AddScoped<IRequestHandler<SoftDeleteUserCommand, BaseResponse<string>>, SoftDeleteUserCommandHandler>();
+        services.AddScoped<IRequestHandler<GetUserByIdQuery, BaseResponse<UserDto>>, GetUserByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<GetUsersQuery, BaseResponse<PaginatedEnumerable<UserDto>>>, GetUsersQueryHandler>();
         services.AddScoped<IRequestHandler<GetTodoListsQuery, BaseResponse<PaginatedEnumerable<TodoListDto>>>,
             GetTodoListsQueryHandler>();
         services.AddScoped<IRequestHandler<CreateTodoListCommand, BaseResponse<TodoListDto>>, CreateTodoListCommandHandler>();

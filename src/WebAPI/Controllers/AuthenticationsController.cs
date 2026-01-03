@@ -12,6 +12,7 @@ namespace WebAPI.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public sealed class AuthenticationsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -28,7 +29,6 @@ public sealed class AuthenticationsController : ControllerBase
     /// <summary>
     /// Authenticates a user and returns a JWT token.
     /// </summary>
-    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<BaseResponse<LoginResponse>>> Login([FromBody] LoginCommand command)
     {
@@ -39,7 +39,6 @@ public sealed class AuthenticationsController : ControllerBase
     /// <summary>
     /// Registers a new user.
     /// </summary>
-    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<BaseResponse<string>>> Register([FromBody] RegisterCommand command)
     {
@@ -50,7 +49,6 @@ public sealed class AuthenticationsController : ControllerBase
     /// <summary>
     /// Resets a user's password.
     /// </summary>
-    [AllowAnonymous]
     [HttpPost("reset-password")]
     public async Task<ActionResult<BaseResponse<string>>> ResetPassword([FromBody] ResetPasswordCommand command)
     {

@@ -187,4 +187,25 @@ public abstract class ApiTestBase
         /// </summary>
         public IReadOnlyCollection<TodoItemResponse>? Items { get; set; }
     }
+
+    /// <summary>
+    /// Represents a response containing details of a user.
+    /// </summary>
+    protected sealed class UserResponse
+    {
+        public Guid Id { get; set; }
+        public string? Username { get; set; }
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public bool EmailConfirm { get; set; }
+        public bool PhoneNumberConfirm { get; set; }
+        public bool TwoFactorEnabled { get; set; }
+        public int AccessFailedCount { get; set; }
+        public bool IsLocked { get; set; }
+        public bool IsDeleted { get; set; }
+        public IReadOnlyCollection<string>? Roles { get; set; }
+        public IReadOnlyCollection<string>? Groups { get; set; }
+        public IReadOnlyCollection<string>? Permissions { get; set; }
+        public IReadOnlyDictionary<string, IReadOnlyCollection<string>>? GroupRoles { get; set; }
+    }
 }

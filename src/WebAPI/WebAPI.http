@@ -115,3 +115,51 @@ Content-Type: application/json
 }
 
 ###
+
+# Users - List
+GET {{WebAPI_HostAddress}}/api/users?page=1&total=10&sortBy=username&descending=false
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+###
+
+# Users - Get by id
+GET {{WebAPI_HostAddress}}/api/users/{{userId}}
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+###
+
+# Users - Create
+POST {{WebAPI_HostAddress}}/api/users
+Content-Type: application/json
+Authorization: Bearer {{bearerToken}}
+
+{
+  "username": "newuser",
+  "email": "newuser@example.com",
+  "phoneNumber": "+12025550123",
+  "password": "NewUser123!"
+}
+
+###
+
+# Users - Update
+PATCH {{WebAPI_HostAddress}}/api/users/{{userId}}
+Content-Type: application/json
+Authorization: Bearer {{bearerToken}}
+
+{
+  "username": "updateduser",
+  "email": "updateduser@example.com",
+  "phoneNumber": "+12025550124",
+  "isLocked": false
+}
+
+###
+
+# Users - Soft delete
+DELETE {{WebAPI_HostAddress}}/api/users/{{userId}}
+Authorization: Bearer {{bearerToken}}
+
+###
