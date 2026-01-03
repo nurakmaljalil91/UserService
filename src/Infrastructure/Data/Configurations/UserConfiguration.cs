@@ -66,6 +66,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(512)
             .IsRequired();
 
+        builder.Property(u => u.PasswordResetToken)
+            .HasMaxLength(256);
+
+        builder.Property(u => u.PasswordResetTokenExpiresAt);
+
         builder.HasIndex(u => u.Username).IsUnique();
         builder.HasIndex(u => u.NormalizedUsername).IsUnique();
         builder.HasIndex(u => u.Email).IsUnique();

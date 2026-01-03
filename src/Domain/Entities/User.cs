@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using NodaTime;
 
 namespace Domain.Entities;
 
@@ -69,6 +70,16 @@ public class User : BaseEntity<Guid>
     /// Gets or sets the password hash for the user.
     /// </summary>
     public string? PasswordHash { get; set; }
+
+    /// <summary>
+    /// Gets or sets the password reset token for the user.
+    /// </summary>
+    public string? PasswordResetToken { get; set; }
+
+    /// <summary>
+    /// Gets or sets when the password reset token expires.
+    /// </summary>
+    public Instant? PasswordResetTokenExpiresAt { get; set; }
 
     /// <summary>
     /// Gets the roles assigned directly to the user.

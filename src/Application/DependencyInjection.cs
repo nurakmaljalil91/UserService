@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using Application.Authentications.Commands;
+using Application.Authentications.Models;
 using Application.Common.Behaviours;
 using Application.Common.Models;
 using Application.TodoItems.Commands;
@@ -36,6 +38,9 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<CreateTodoItemCommand, BaseResponse<TodoItemDto>>, CreateTodoItemCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateTodoItemComand, BaseResponse<TodoItemDto>>, UpdateTodoItemCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteTodoItemCommand, BaseResponse<object>>, DeleteTodoItemCommandHandler>();
+        services.AddScoped<IRequestHandler<LoginCommand, BaseResponse<LoginResponse>>, LoginCommandHandler>();
+        services.AddScoped<IRequestHandler<RegisterCommand, BaseResponse<string>>, RegisterCommandHandler>();
+        services.AddScoped<IRequestHandler<ResetPasswordCommand, BaseResponse<string>>, ResetPasswordCommandHandler>();
         services.AddScoped<IRequestHandler<GetTodoListsQuery, BaseResponse<PaginatedEnumerable<TodoListDto>>>,
             GetTodoListsQueryHandler>();
         services.AddScoped<IRequestHandler<CreateTodoListCommand, BaseResponse<TodoListDto>>, CreateTodoListCommandHandler>();

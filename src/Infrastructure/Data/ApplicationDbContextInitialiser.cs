@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using Application.Common.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -14,16 +15,22 @@ public class ApplicationDbContextInitialiser
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext _context;
+    private readonly IPasswordHasherService _passwordHasher;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ApplicationDbContextInitialiser"/> class.
     /// </summary>
     /// <param name="logger">The logger to use for logging database initialisation events.</param>
     /// <param name="context">The application's database context.</param>
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context)
+    /// <param name="passwordHasher">The password hashing service.</param>
+    public ApplicationDbContextInitialiser(
+        ILogger<ApplicationDbContextInitialiser> logger,
+        ApplicationDbContext context,
+        IPasswordHasherService passwordHasher)
     {
         _logger = logger;
         _context = context;
+        _passwordHasher = passwordHasher;
     }
 
     /// <summary>
@@ -78,6 +85,43 @@ public class ApplicationDbContextInitialiser
                     new TodoItem { Title = "Reward yourself with a nice, long nap" },
                 }
             });
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.Users.Any())
+        {
+            var admin = new User
+            {
+                Username = "admin",
+                NormalizedUsername = "ADMIN",
+                Email = "admin@example.com",
+                NormalizedEmail = "ADMIN@EXAMPLE.COM",
+                EmailConfirm = true,
+                PhoneNumberConfirm = false,
+                TwoFactorEnabled = false,
+                AccessFailedCount = 0,
+                IsLocked = false,
+                IsDeleted = false
+            };
+            admin.PasswordHash = _passwordHasher.HashPassword(admin, "Admin123!");
+
+            var user = new User
+            {
+                Username = "user",
+                NormalizedUsername = "USER",
+                Email = "user@example.com",
+                NormalizedEmail = "USER@EXAMPLE.COM",
+                EmailConfirm = true,
+                PhoneNumberConfirm = false,
+                TwoFactorEnabled = false,
+                AccessFailedCount = 0,
+                IsLocked = false,
+                IsDeleted = false
+            };
+            user.PasswordHash = _passwordHasher.HashPassword(user, "User123!");
+
+            _context.Users.AddRange(admin, user);
 
             await _context.SaveChangesAsync();
         }
