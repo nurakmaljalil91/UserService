@@ -1,0 +1,19 @@
+<Project>
+
+  <!-- In Release, treat warnings as errors for all non-test projects -->
+  <Target Name="TreatWarningsAsErrorsInRelease"
+          BeforeTargets="CoreCompile"
+          Condition="'$(Configuration)' == 'Release' and '$(IsTestProject)' != 'true'">
+    <PropertyGroup>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+  </Target>
+
+  <!-- Optional: high-level build info message (handy in CI logs) -->
+  <Target Name="PrintApplicationBuildInfo"
+          BeforeTargets="BeforeBuild">
+    <Message Importance="High"
+             Text="Building $(MSBuildProjectName) | Configuration=$(Configuration) | TFM=$(TargetFramework)" />
+  </Target>
+
+</Project>

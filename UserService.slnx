@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/lib/">
+    <Project Path="lib/Mediator/Mediator.csproj" Id="01ca3313-9315-4683-8e2f-d376cd6d0a93" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Application/Application.csproj" />
+    <Project Path="src/Domain/Domain.csproj" />
+    <Project Path="src/Infrastructure/Infrastructure.csproj" />
+    <Project Path="src/WebAPI/WebAPI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" Id="eda9f04a-31a6-4a8b-82cb-0894fb5290ca" />
+    <Project Path="tests/Domain.UnitTests/Domain.UnitTests.csproj" Id="5078c608-e9a0-4f1d-b5bc-5007c8d79908" />
+    <Project Path="tests/Infrastructure.UnitTests/Infrastructure.UnitTests.csproj" Id="16641e9f-3370-4a18-a4fc-8d231cb55a93" />
+    <Project Path="tests/IntegrationTests/IntegrationTests.csproj" Id="613438a9-89b7-4be6-bc22-038d94e48609" />
+    <Project Path="tests/WebAPI.UnitTests/WebAPI.UnitTests.csproj" Id="fad641e1-c1df-4a6c-838f-19cfc05f13ac" />
+  </Folder>
+</Solution>

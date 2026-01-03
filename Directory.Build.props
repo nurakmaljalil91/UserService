@@ -1,0 +1,45 @@
+<Project>
+
+  <!-- Common defaults for C# projects in the solution -->
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+    <!-- Default target framework for Cerxos services/libs -->
+    <!-- You can override this in a specific .csproj if needed -->
+    <TargetFramework>net10.0</TargetFramework>
+
+    <!-- Modern C# / .NET style -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Use latest code analysis rules -->
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Deterministic builds / reproducibility -->
+    <Deterministic>true</Deterministic>
+
+    <!-- XML docs by default (good for API + Application/Domain) -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Do not treat warnings as errors by default (we�ll turn it on for Release in targets) -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+    <!-- Default encoding / language -->
+    <CodePage>65001</CodePage>
+  </PropertyGroup>
+
+  <!-- Test project specific settings -->
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj' and '$(IsTestProject)' == 'true'">
+    <!-- Don�t pack test projects -->
+    <IsPackable>false</IsPackable>
+    <!-- Usually no need for XML docs on tests -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+    <PackageReference Include="SonarAnalyzer.CSharp">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>
+

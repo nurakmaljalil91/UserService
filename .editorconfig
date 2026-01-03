@@ -1,0 +1,148 @@
+# ============================================================
+# .editorconfig for .NET 10 / C# 13 
+# ============================================================
+
+root = true
+
+# ============================================================
+# Global settings
+# ============================================================
+
+[*.{cs,csx,cake}]
+charset = utf-8-bom
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = lf
+
+# ============================================================
+# C# Language Conventions
+# ============================================================
+
+# Use var when type is apparent
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+# Prefer modern C# features
+csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_expression_bodied_accessors = true:suggestion
+
+# Pattern matching
+csharp_style_prefer_pattern_matching = true:suggestion
+csharp_style_prefer_not_pattern_matching = true:silent
+
+# File-scoped namespaces
+csharp_style_namespace_declarations = file_scoped:suggestion
+
+# Using directives
+csharp_using_directive_placement = outside_namespace:suggestion
+dotnet_sort_system_directives_first = true
+
+# Prefer object initializers
+csharp_style_object_initializer = true:suggestion
+csharp_style_collection_initializer = true:suggestion
+
+# Prefer simplified boolean expressions
+csharp_style_simplify_boolean_expressions = true:suggestion
+csharp_style_simplify_interpolation = true:suggestion
+
+# Prefer nameof()
+dotnet_style_prefer_nameof_expression = true:suggestion
+
+# Prefer null coalescing
+csharp_style_prefer_null_coalescing_operators = true:suggestion
+
+# Pattern matching over "is/as"
+csharp_style_prefer_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_prefer_pattern_matching_over_as_with_null_check = true:suggestion
+
+# Required properties (C# 11+)
+csharp_style_prefer_primary_constructors = true:suggestion
+
+# ============================================================
+# .NET Formatting Conventions
+# ============================================================
+
+dotnet_style_qualification_for_event = false:warning
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_property = false:warning
+
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+
+# Use explicit type for private fields (_camelCase)
+dotnet_naming_rule.private_fields_should_be_camelcase.severity = warning
+dotnet_naming_rule.private_fields_should_be_camelcase.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_camelcase.style = camel_case_underscore
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_fields.required_modifiers = 
+
+dotnet_naming_style.camel_case_underscore.capitalization = camel_case
+dotnet_naming_style.camel_case_underscore.required_prefix = _
+
+# ============================================================
+# Analyzer Rules (Roslyn)
+# ============================================================
+
+# Treat warnings as errors for your own code
+dotnet_analyzer_diagnostic.category-Style.severity = warning
+dotnet_analyzer_diagnostic.category-Security.severity = warning
+dotnet_analyzer_diagnostic.category-Reliability.severity = warning
+dotnet_analyzer_diagnostic.category-Performance.severity = warning
+dotnet_analyzer_diagnostic.category-Maintainability.severity = warning
+dotnet_analyzer_diagnostic.category-Design.severity = warning
+dotnet_analyzer_diagnostic.category-Usage.severity = warning
+
+# But do NOT fail for external generated code
+generated_code = true
+
+# ============================================================
+# File Layout
+# ============================================================
+
+csharp_new_line_before_open_brace = all
+csharp_new_line_between_method_declaration_and_body = true
+csharp_new_line_between_query_expression_clauses = true
+
+# Spacing
+csharp_space_after_cast = false
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_before_colon_in_inheritance_clause = true
+csharp_space_before_open_square_brackets = false
+
+# Wrap long lines
+csharp_wrap_before_dot = false
+
+# ============================================================
+# Code Files
+# ============================================================
+
+[*.cs]
+max_line_length = 120
+dotnet_style_readonly_field = true:suggestion
+
+# ============================================================
+# JSON files
+# ============================================================
+[*.json]
+indent_style = space
+indent_size = 2
+
+# ============================================================
+# XML files
+# ============================================================
+[*.xml]
+indent_style = space
+indent_size = 2
+
+# ============================================================
+# YML / YAML
+# ============================================================
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2

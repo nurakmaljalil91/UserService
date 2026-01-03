@@ -1,0 +1,10 @@
+services:
+  userservice:
+    image: ${WEBAPI_IMAGE:-userservice:latest}
+    env_file:
+      - ./.env
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
