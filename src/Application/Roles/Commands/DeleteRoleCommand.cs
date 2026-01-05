@@ -31,7 +31,7 @@ public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand, BaseR
         var role = await _context.Roles.FindAsync(new object[] { request.Id }, cancellationToken);
         if (role == null)
         {
-            throw new NotFoundException("Role not found.");
+            throw new NotFoundException(nameof(Domain.Entities.Role), request.Id.ToString());
         }
 
         _context.Roles.Remove(role);
