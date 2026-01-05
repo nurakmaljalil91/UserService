@@ -32,18 +32,8 @@ public class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand, BaseR
 
     public async Task<BaseResponse<RoleDto>> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
     {
-        var name = request.Name?.Trim();
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return BaseResponse<RoleDto>.Fail("Role name is required.");
-        }
-
+        var name = request.Name!.Trim();
         var normalizedName = name.ToUpperInvariant();
-        var exists = await _context.Roles.AnyAsync(r => r.NormalizedName == normalizedName, cancellationToken);
-        if (exists)
-        {
-            return BaseResponse<RoleDto>.Fail("Role name already exists.");
-        }
 
         var role = new Role
         {
