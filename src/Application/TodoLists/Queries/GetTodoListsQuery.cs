@@ -12,12 +12,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.TodoLists.Queries;
 
 /// <summary>
-/// Represents a paginated request to retrieve todo lists with optional filtering and sorting.
+/// Represents a paginated request to retrieve task lists with optional filtering and sorting.
 /// </summary>
 public class GetTodoListsQuery : PaginatedRequest, IRequest<BaseResponse<PaginatedEnumerable<TodoListDto>>>;
 
 /// <summary>
-/// Handles the retrieval of paginated todo lists with optional filtering and sorting.
+/// Handles the retrieval of paginated task lists with optional filtering and sorting.
 /// </summary>
 public class GetTodoListsQueryHandler : IRequestHandler<GetTodoListsQuery, BaseResponse<PaginatedEnumerable<TodoListDto>>>
 {

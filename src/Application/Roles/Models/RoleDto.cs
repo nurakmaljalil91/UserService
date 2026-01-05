@@ -32,6 +32,7 @@ public sealed class RoleDto
         Permissions = role.RolePermissions
             .Select(rp => rp.Permission?.Name)
             .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => name!)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }

@@ -1,4 +1,5 @@
-﻿using Domain.Common;
+﻿#nullable enable
+using Domain.Common;
 
 namespace Domain.UnitTests.Common;
 
@@ -7,16 +8,10 @@ namespace Domain.UnitTests.Common;
 /// </summary>
 public class ValueObjectTests
 {
-    private sealed class SampleValueObject : ValueObject
+    private sealed class SampleValueObject(int number, string? text) : ValueObject
     {
-        public SampleValueObject(int number, string? text)
-        {
-            Number = number;
-            Text = text;
-        }
-
-        public int Number { get; }
-        public string? Text { get; }
+        private int Number { get; } = number;
+        private string? Text { get; } = text;
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
