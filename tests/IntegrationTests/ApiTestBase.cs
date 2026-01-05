@@ -5,10 +5,6 @@ using Application.Authentications.Models;
 using Domain.Common;
 using Microsoft.AspNetCore.Mvc.Testing;
 
-/**
- * Provides a base class for integration API tests, including helper methods for creating HTTP clients,
- * authenticating test users, and reading API responses.
- */
 namespace IntegrationTests;
 
 /// <summary>

@@ -1,3 +1,5 @@
-public partial class Program
+﻿namespace WebAPI;
+
+public static partial class Program
 {
 }

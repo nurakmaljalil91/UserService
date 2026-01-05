@@ -26,6 +26,9 @@
 
     <!-- Default encoding / language -->
     <CodePage>65001</CodePage>
+
+    <!-- Suppress warnings about missing XML comments -->
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <!-- Test project specific settings -->

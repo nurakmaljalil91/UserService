@@ -1,3 +1,4 @@
+﻿#nullable enable
 using Mediator;
 
 namespace WebAPI.UnitTests.TestInfrastructure;

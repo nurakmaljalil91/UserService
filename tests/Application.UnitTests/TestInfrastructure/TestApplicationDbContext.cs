@@ -19,12 +19,12 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     }
 
     /// <summary>
-    /// Gets the <see cref="DbSet{TodoList}"/> representing the collection of todo lists.
+    /// Gets the <see cref="DbSet{TodoList}"/> representing the collection of task lists.
     /// </summary>
     public DbSet<TodoList> TodoLists => Set<TodoList>();
 
     /// <summary>
-    /// Gets the <see cref="DbSet{TodoItem}"/> representing the collection of todo items.
+    /// Gets the <see cref="DbSet{TodoItem}"/> representing the collection of task items.
     /// </summary>
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 

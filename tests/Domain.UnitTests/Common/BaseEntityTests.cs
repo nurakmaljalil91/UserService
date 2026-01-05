@@ -1,9 +1,10 @@
-﻿using Domain.Common;
+﻿#nullable enable
+using Domain.Common;
 
 namespace Domain.UnitTests.Common;
 
 /// <summary>
-/// Unit tests for the <see cref="BaseEntity"/> class.
+/// Unit tests for the <see cref="BaseEntity{TKey}"/> class.
 /// </summary>
 public class BaseEntityTests
 {
@@ -12,7 +13,7 @@ public class BaseEntityTests
     }
 
     /// <summary>
-    /// Verifies that the <see cref="BaseEntity.Id"/> property can be set and retrieved.
+    /// Verifies that the <see cref="BaseEntity{TKey}.Id"/> property can be set and retrieved.
     /// </summary>
     [Fact]
     public void Id_CanBeSet()

@@ -91,6 +91,7 @@ public class AuditableEntityInterceptorTests
         return new TestDbContext(options);
     }
 
+#nullable enable
     private sealed class TestUser : IUser
     {
         public TestUser(string username)
@@ -102,6 +103,7 @@ public class AuditableEntityInterceptorTests
 
         public List<string> GetRoles() => new();
     }
+#nullable restore
 
     private sealed class TestClockService : IClockService
     {
