@@ -2,6 +2,7 @@
 @http = http://localhost:5120
 @WebAPI_HostAddress = https://localhost:7058
 @bearerToken = 
+@roleId = 
 
 # Health - Liveness
 GET {{WebAPI_HostAddress}}/health/live
@@ -160,6 +161,57 @@ Authorization: Bearer {{bearerToken}}
 
 # Users - Soft delete
 DELETE {{WebAPI_HostAddress}}/api/users/{{userId}}
+Authorization: Bearer {{bearerToken}}
+
+###
+
+# Roles - Get Admin role id (copy the Admin id into roleId above)
+GET {{WebAPI_HostAddress}}/api/roles?page=1&total=20&sortBy=name&descending=false&filter=name eq 'Admin'
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+###
+
+# Roles - List
+GET {{WebAPI_HostAddress}}/api/roles?page=1&total=10&sortBy=name&descending=false
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+###
+
+# Roles - Get by id
+GET {{WebAPI_HostAddress}}/api/roles/{{roleId}}
+Accept: application/json
+Authorization: Bearer {{bearerToken}}
+
+###
+
+# Roles - Create
+POST {{WebAPI_HostAddress}}/api/roles
+Content-Type: application/json
+Authorization: Bearer {{bearerToken}}
+
+{
+  "name": "Support",
+  "description": "Support role"
+}
+
+###
+
+# Roles - Update
+PATCH {{WebAPI_HostAddress}}/api/roles/{{roleId}}
+Content-Type: application/json
+Authorization: Bearer {{bearerToken}}
+
+{
+  "name": "Support Manager",
+  "description": "Updated support role"
+}
+
+###
+
+# Roles - Delete
+DELETE {{WebAPI_HostAddress}}/api/roles/{{roleId}}
 Authorization: Bearer {{bearerToken}}
 
 ###

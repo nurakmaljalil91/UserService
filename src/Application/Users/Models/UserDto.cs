@@ -25,11 +25,13 @@ public sealed class UserDto
         Roles = user.UserRoles
             .Select(ur => ur.Role?.Name)
             .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => name!)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
         Groups = user.UserGroups
             .Select(ug => ug.Group?.Name)
             .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => name!)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
         GroupRoles = user.UserGroups
@@ -41,6 +43,7 @@ public sealed class UserDto
                     .SelectMany(ug => ug.Group?.GroupRoles ?? new List<GroupRole>())
                     .Select(gr => gr.Role?.Name)
                     .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .Select(name => name!)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList(),
                 StringComparer.OrdinalIgnoreCase);
@@ -56,6 +59,7 @@ public sealed class UserDto
         Permissions = directPermissions
             .Concat(groupPermissions)
             .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => name!)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }

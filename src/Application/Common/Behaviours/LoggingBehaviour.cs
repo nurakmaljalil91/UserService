@@ -51,8 +51,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         {
             var userId = _user.Username ?? "Unknown";
             _logger.LogError(ex, "Error handling {RequestName} for user {UserId}: {ExceptionMessage}", requestName, userId, ex.Message);
-            throw; // Re-throw the original exception to avoid throwing System.Exception directly
+            throw new InvalidOperationException($"Error handling {requestName} for user {userId}.", ex);
         }
     }
 }
-

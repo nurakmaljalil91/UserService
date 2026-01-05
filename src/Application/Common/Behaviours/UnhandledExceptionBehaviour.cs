@@ -34,7 +34,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavio
 
             _logger.LogError(ex, "RUL Synergy Claim System Request: Unhandled Exception for Request {Name} {@Request}", requestName, request);
 
-            throw;
+            throw new InvalidOperationException($"Unhandled exception for request {requestName}.", ex);
         }
     }
 }

@@ -5,10 +5,6 @@ using Application.Authentications.Models;
 using Domain.Common;
 using Microsoft.AspNetCore.Mvc.Testing;
 
-/**
- * Provides a base class for integration API tests, including helper methods for creating HTTP clients,
- * authenticating test users, and reading API responses.
- */
 namespace IntegrationTests;
 
 /// <summary>
@@ -207,5 +203,17 @@ public abstract class ApiTestBase
         public IReadOnlyCollection<string>? Groups { get; set; }
         public IReadOnlyCollection<string>? Permissions { get; set; }
         public IReadOnlyDictionary<string, IReadOnlyCollection<string>>? GroupRoles { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a response containing details of a role.
+    /// </summary>
+    protected sealed class RoleResponse
+    {
+        public Guid Id { get; set; }
+        public string? Name { get; set; }
+        public string? NormalizedName { get; set; }
+        public string? Description { get; set; }
+        public IReadOnlyCollection<string>? Permissions { get; set; }
     }
 }

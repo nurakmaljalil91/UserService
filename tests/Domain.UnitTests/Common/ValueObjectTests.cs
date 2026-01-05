@@ -1,4 +1,5 @@
-﻿using Domain.Common;
+﻿#nullable enable
+using Domain.Common;
 
 namespace Domain.UnitTests.Common;
 
@@ -7,16 +8,10 @@ namespace Domain.UnitTests.Common;
 /// </summary>
 public class ValueObjectTests
 {
-    private sealed class SampleValueObject : ValueObject
+    private sealed class SampleValueObject(int number, string? text) : ValueObject
     {
-        public SampleValueObject(int number, string? text)
-        {
-            Number = number;
-            Text = text;
-        }
-
-        public int Number { get; }
-        public string? Text { get; }
+        private int Number { get; } = number;
+        private string? Text { get; } = text;
 
         protected override IEnumerable<object> GetEqualityComponents()
         {
@@ -24,10 +19,10 @@ public class ValueObjectTests
             yield return Text!;
         }
 
-        public static bool operator ==(SampleValueObject left, SampleValueObject right)
+        public static bool AreEqual(SampleValueObject? left, SampleValueObject? right)
             => EqualOperator(left, right);
 
-        public static bool operator !=(SampleValueObject left, SampleValueObject right)
+        public static bool AreNotEqual(SampleValueObject? left, SampleValueObject? right)
             => NotEqualOperator(left, right);
 
         public override bool Equals(object? obj)
@@ -47,8 +42,8 @@ public class ValueObjectTests
         var b = new SampleValueObject(1, "a");
 
         Assert.True(a.Equals(b));
-        Assert.True(a == b);
-        Assert.False(a != b);
+        Assert.True(SampleValueObject.AreEqual(a, b));
+        Assert.False(SampleValueObject.AreNotEqual(a, b));
         Assert.Equal(a.GetHashCode(), b.GetHashCode());
     }
 
@@ -62,8 +57,8 @@ public class ValueObjectTests
         var b = new SampleValueObject(2, "a");
 
         Assert.False(a.Equals(b));
-        Assert.False(a == b);
-        Assert.True(a != b);
+        Assert.False(SampleValueObject.AreEqual(a, b));
+        Assert.True(SampleValueObject.AreNotEqual(a, b));
     }
 
     /// <summary>
@@ -76,7 +71,7 @@ public class ValueObjectTests
         SampleValueObject? b = null;
         var c = new SampleValueObject(1, "a");
 
-        Assert.True(a == b);
-        Assert.True(a != c);
+        Assert.True(SampleValueObject.AreEqual(a, b));
+        Assert.True(SampleValueObject.AreNotEqual(a, c));
     }
 }

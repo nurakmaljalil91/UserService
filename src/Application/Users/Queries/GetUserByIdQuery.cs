@@ -32,13 +32,13 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, BaseRes
     {
         var user = await _context.Users
             .Include(u => u.UserRoles)
-            .ThenInclude(ur => ur.Role)
+            .ThenInclude(ur => ur.Role!)
             .ThenInclude(r => r.RolePermissions)
             .ThenInclude(rp => rp.Permission)
             .Include(u => u.UserGroups)
-            .ThenInclude(ug => ug.Group)
+            .ThenInclude(ug => ug.Group!)
             .ThenInclude(g => g.GroupRoles)
-            .ThenInclude(gr => gr.Role)
+            .ThenInclude(gr => gr.Role!)
             .ThenInclude(r => r.RolePermissions)
             .ThenInclude(rp => rp.Permission)
             .FirstOrDefaultAsync(u => u.Id == request.Id && !u.IsDeleted, cancellationToken);

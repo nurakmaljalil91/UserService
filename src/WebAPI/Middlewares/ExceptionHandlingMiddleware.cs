@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿#nullable enable
+using System.Net;
 using System.Text.Json;
 using Application.Common.Exceptions;
 using Domain.Common;
@@ -70,9 +71,20 @@ public sealed class ExceptionHandlingMiddleware: IMiddleware
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             context.Response.ContentType = "application/json";
 
-            var response = ex.ErrorResponse != null
-                ? BaseResponse<object>.Fail(ex.ErrorResponse.Message ?? "Bad request.", ex.ErrorResponse.Errors)
-                : BaseResponse<object>.Fail(string.IsNullOrWhiteSpace(ex.Message) ? "Bad request." : ex.Message);
+            string message;
+            IReadOnlyDictionary<string, string[]>? errors = null;
+
+            if (ex.ErrorResponse != null)
+            {
+                message = ex.ErrorResponse.Message ?? "Bad request.";
+                errors = ex.ErrorResponse.Errors;
+            }
+            else
+            {
+                message = string.IsNullOrWhiteSpace(ex.Message) ? "Bad request." : ex.Message;
+            }
+
+            var response = BaseResponse<object>.Fail(message, errors);
 
             await context.Response.WriteAsync(
                 JsonSerializer.Serialize(response, JsonOptions));

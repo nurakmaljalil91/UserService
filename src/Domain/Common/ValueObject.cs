@@ -13,7 +13,7 @@ public abstract class ValueObject
     /// <param name="left">The first value object.</param>
     /// <param name="right">The second value object.</param>
     /// <returns><c>true</c> if the value objects are equal; otherwise, <c>false</c>.</returns>
-    protected static bool EqualOperator(ValueObject left, ValueObject right)
+    protected static bool EqualOperator(ValueObject? left, ValueObject? right)
     {
         if (left is null ^ right is null)
         {
@@ -29,7 +29,7 @@ public abstract class ValueObject
     /// <param name="left">The first value object.</param>
     /// <param name="right">The second value object.</param>
     /// <returns><c>true</c> if the value objects are not equal; otherwise, <c>false</c>.</returns>
-    protected static bool NotEqualOperator(ValueObject left, ValueObject right)
+    protected static bool NotEqualOperator(ValueObject? left, ValueObject? right)
     {
         return !(EqualOperator(left, right));
     }

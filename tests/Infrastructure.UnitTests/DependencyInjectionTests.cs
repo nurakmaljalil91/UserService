@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using Application.Common.Interfaces;
 using Infrastructure;
 using Infrastructure.Data;
@@ -78,3 +79,4 @@ public class DependencyInjectionTests
         public List<string> GetRoles() => new();
     }
 }
+#nullable restore
