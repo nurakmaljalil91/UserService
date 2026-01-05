@@ -208,4 +208,16 @@ public abstract class ApiTestBase
         public IReadOnlyCollection<string>? Permissions { get; set; }
         public IReadOnlyDictionary<string, IReadOnlyCollection<string>>? GroupRoles { get; set; }
     }
+
+    /// <summary>
+    /// Represents a response containing details of a role.
+    /// </summary>
+    protected sealed class RoleResponse
+    {
+        public Guid Id { get; set; }
+        public string? Name { get; set; }
+        public string? NormalizedName { get; set; }
+        public string? Description { get; set; }
+        public IReadOnlyCollection<string>? Permissions { get; set; }
+    }
 }
