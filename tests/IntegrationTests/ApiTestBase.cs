@@ -216,4 +216,30 @@ public abstract class ApiTestBase
         public string? Description { get; set; }
         public IReadOnlyCollection<string>? Permissions { get; set; }
     }
+
+    /// <summary>
+    /// Represents a response containing details of a permission.
+    /// </summary>
+    protected sealed class PermissionResponse
+    {
+        /// <summary>
+        /// Gets or sets the unique identifier of the permission.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the permission name.
+        /// </summary>
+        public string? Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the normalized permission name.
+        /// </summary>
+        public string? NormalizedName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the permission description.
+        /// </summary>
+        public string? Description { get; set; }
+    }
 }
