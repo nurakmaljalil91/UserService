@@ -166,8 +166,11 @@ Authorization: Bearer {token}
 Query Parameters:
 - `PageNumber` (optional): Page number for pagination (default: 1)
 - `PageSize` (optional): Number of items per page (default: 10)
-- `Filter` (optional): Filter expression (supports: eq, contains, startswith, endswith, gt, ge, lt, le)
-- `OrderBy` (optional): Field to sort by
+- `Filter` (optional): Filter expression using OData-like syntax. Examples:
+  - `name eq 'users.read'` - exact match
+  - `name contains 'user'` - contains substring
+  - `name startswith 'users'` - starts with
+- `OrderBy` (optional): Field to sort by (e.g., `name`, `name desc`)
 
 Response:
 ```json
@@ -302,8 +305,11 @@ Authorization: Bearer {token}
 Query Parameters:
 - `PageNumber` (optional): Page number for pagination (default: 1)
 - `PageSize` (optional): Number of items per page (default: 10)
-- `Filter` (optional): Filter expression (supports: eq, contains, startswith, endswith, gt, ge, lt, le)
-- `OrderBy` (optional): Field to sort by
+- `Filter` (optional): Filter expression using OData-like syntax. Examples:
+  - `name eq 'Administrator'` - exact match
+  - `name contains 'admin'` - contains substring
+  - `name startswith 'Admin'` - starts with
+- `OrderBy` (optional): Field to sort by (e.g., `name`, `name desc`)
 
 Response:
 ```json
