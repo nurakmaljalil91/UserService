@@ -133,6 +133,12 @@ This project containt 4 unit tests and one integration test, to run all the test
 dotnet test UserService.slnx
 ```
 
+## Releases
+
+```bash
+dotnet build UserService.slnx -c Release /p:TreatWarningsAsErrors=true
+```
+
 ## Deployment
 
 > Describe the deployment process for the project, including any cloud platforms, hosting providers, or containerization strategies used. Provide instructions on how to deploy the project to a production environment.

@@ -6,6 +6,9 @@ using Application.Authentications.Commands;
 using Application.Authentications.Models;
 using Application.Common.Behaviours;
 using Application.Common.Models;
+using Application.Permissions.Commands;
+using Application.Permissions.Models;
+using Application.Permissions.Queries;
 using Application.Roles.Commands;
 using Application.Roles.Models;
 using Application.Roles.Queries;
@@ -57,6 +60,12 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<CreateRoleCommand, BaseResponse<RoleDto>>, CreateRoleCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateRoleCommand, BaseResponse<RoleDto>>, UpdateRoleCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteRoleCommand, BaseResponse<string>>, DeleteRoleCommandHandler>();
+        services.AddScoped<IRequestHandler<GetPermissionsQuery, BaseResponse<PaginatedEnumerable<PermissionDto>>>,
+            GetPermissionsQueryHandler>();
+        services.AddScoped<IRequestHandler<GetPermissionByIdQuery, BaseResponse<PermissionDto>>, GetPermissionByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreatePermissionCommand, BaseResponse<PermissionDto>>, CreatePermissionCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdatePermissionCommand, BaseResponse<PermissionDto>>, UpdatePermissionCommandHandler>();
+        services.AddScoped<IRequestHandler<DeletePermissionCommand, BaseResponse<string>>, DeletePermissionCommandHandler>();
         services.AddScoped<IRequestHandler<GetTodoListsQuery, BaseResponse<PaginatedEnumerable<TodoListDto>>>,
             GetTodoListsQueryHandler>();
         services.AddScoped<IRequestHandler<CreateTodoListCommand, BaseResponse<TodoListDto>>, CreateTodoListCommandHandler>();

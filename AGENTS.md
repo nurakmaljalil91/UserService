@@ -1,29 +1,64 @@
 # Agent Notes for UserService
 
-## Overview
+## Role
+You are a senior engineer working on this project
+
+## Project Overview
 - Service: User Service (REST API for Cerxos Web App)
 - Stack: .NET 10 (C#), PostgreSQL
-- Features: auth (login/register/logout), user info, login info, profile data (address, blood, image, tag)
+- Features: authentications (login/register/logout), user info, login info, profile data (address, blood, image, tag)
+- RBAC (Roles and Permissions)
 
-## Setup
-- Open `UserService.slnx` in Visual Studio 2026 or JetBrains Rider
-- Configure DB connection in `appsettings.json`
-- To run without a database, set:
-  - `"UseInMemoryDatabase": false` (per README; verify intent before changing)
+## Non-Negotiable Rules
+- ALWAYS add comments to class, methods and properties - 1591
+- ALWAYS write unit tests and integration tests - 80% coverage
+- ALWAYS add `#nullable enable` if contain nullable
 
-## Tools
-- `dotnet-ef` (global tool recommended)
-  - Install: `dotnet tool install --global dotnet-ef`
-  - Update: `dotnet tool update --global dotnet-ef`
+## Architecture Rules
 
-## Migrations (from repo root)
-- Add migration:
-  - `dotnet ef migrations add "MainMigration" --project src\Infrastructure --startup-project src\WebAPI --output-dir Persistence\Migrations`
-- Update database:
-  - `dotnet ef database update "MainMigration" --project src\Infrastructure --startup-project src\WebAPI`
-- List migrations:
-  - `dotnet ef migrations list --project src\Infrastructure --startup-project src\WebAPI`
+- Domain layer has no dependency on Application or Infrastructure
+- Controllers contain no business logic
+- Use CQRS (Command / Query separation)
+- Use Value Objects instead of primitives where applicable
+- No static access except for constants
 
-## Tests
-- Run all tests:
-  - `dotnet test UserService.slnx`
+## Coding Standards
+
+### General
+- Prefer explicit over implicit
+- No magic numbers
+- Use meaningful names
+
+### C# (.NET)
+- Use records for immutable models
+- Use async/await everywhere
+- Use CancellationToken
+- One public class per file
+
+## Folder Structure
+
+lib:
+- Mediator
+
+src:
+- Domain/
+- Application/
+- Infrastructure/
+- WebAPI/
+
+tests:
+- Domain.UnitTests/
+- Application.UnitTests/
+- Infrastructure.UnitTests/
+- IntegrationTests/
+- WebAPI.UnitTests/
+  
+## Agent Behavior
+
+When asked to code:
+- Follow existing patterns in the codebase
+- Ask before making breaking changes
+
+When unsure:
+- Ask a clarification question
+- Do NOT guess
