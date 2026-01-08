@@ -59,6 +59,6 @@ When asked to code:
 - Follow existing patterns in the codebase
 - Ask before making breaking changes
 
-# When unsure:
+When unsure:
 - Ask a clarification question
 - Do NOT guess
