@@ -6,6 +6,9 @@ using Application.Authentications.Commands;
 using Application.Authentications.Models;
 using Application.Common.Behaviours;
 using Application.Common.Models;
+using Application.ExternalLinks.Commands;
+using Application.ExternalLinks.Models;
+using Application.ExternalLinks.Queries;
 using Application.Permissions.Commands;
 using Application.Permissions.Models;
 using Application.Permissions.Queries;
@@ -71,6 +74,16 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<CreateTodoListCommand, BaseResponse<TodoListDto>>, CreateTodoListCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateTodoListCommand, BaseResponse<TodoListDto>>, UpdateTodoListCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteTodoListCommand, BaseResponse<string>>, DeleteTodoListCommandHandler>();
+        services.AddScoped<IRequestHandler<StartExternalLinkCommand, BaseResponse<ExternalLinkStartResponse>>,
+            StartExternalLinkCommandHandler>();
+        services.AddScoped<IRequestHandler<CompleteExternalLinkCommand, BaseResponse<ExternalLinkDto>>,
+            CompleteExternalLinkCommandHandler>();
+        services.AddScoped<IRequestHandler<UnlinkExternalProviderCommand, BaseResponse<string>>,
+            UnlinkExternalProviderCommandHandler>();
+        services.AddScoped<IRequestHandler<GetExternalLinksQuery, BaseResponse<IReadOnlyCollection<ExternalLinkDto>>>,
+            GetExternalLinksQueryHandler>();
+        services.AddScoped<IRequestHandler<GetGoogleCalendarAccessTokenQuery, BaseResponse<ExternalAccessTokenDto>>,
+            GetGoogleCalendarAccessTokenQueryHandler>();
         return services;
     }
 }

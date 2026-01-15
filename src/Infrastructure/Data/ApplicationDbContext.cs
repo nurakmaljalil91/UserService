@@ -75,6 +75,12 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     /// <inheritdoc />
     public DbSet<GroupRole> GroupRoles => Set<GroupRole>();
 
+    /// <inheritdoc />
+    public DbSet<ExternalIdentity> ExternalIdentities => Set<ExternalIdentity>();
+
+    /// <inheritdoc />
+    public DbSet<ExternalToken> ExternalTokens => Set<ExternalToken>();
+
     /// <summary>
     /// Configures the entity model for the context.
     /// </summary>

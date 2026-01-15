@@ -94,6 +94,16 @@ public interface IApplicationDbContext
     DbSet<GroupRole> GroupRoles { get; }
 
     /// <summary>
+    /// Gets the set of <see cref="ExternalIdentity"/> entities.
+    /// </summary>
+    DbSet<ExternalIdentity> ExternalIdentities { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="ExternalToken"/> entities.
+    /// </summary>
+    DbSet<ExternalToken> ExternalTokens { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>

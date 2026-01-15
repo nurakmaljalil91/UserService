@@ -6,6 +6,7 @@ using Application.Common.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Data.Interceptors;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -82,6 +83,10 @@ public static class DependencyInjection
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IClockService, ClockService>();
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+        services.AddDataProtection();
+        services.AddScoped<IExternalTokenProtector, ExternalTokenProtector>();
+        services.AddScoped<IExternalLinkStateService, ExternalLinkStateService>();
+        services.AddHttpClient<IGoogleOAuthService, GoogleOAuthService>();
 
         return services;
     }

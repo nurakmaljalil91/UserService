@@ -1,5 +1,6 @@
-﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces;
 using Domain.Entities;
+using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.UnitTests.TestInfrastructure;
@@ -59,6 +60,16 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<GroupRole> GroupRoles => Set<GroupRole>();
 
     /// <summary>
+    /// Gets the <see cref="DbSet{ExternalIdentity}"/> representing external identity links.
+    /// </summary>
+    public DbSet<ExternalIdentity> ExternalIdentities => Set<ExternalIdentity>();
+
+    /// <summary>
+    /// Gets the <see cref="DbSet{ExternalToken}"/> representing external OAuth tokens.
+    /// </summary>
+    public DbSet<ExternalToken> ExternalTokens => Set<ExternalToken>();
+
+    /// <summary>
     /// Configures the entity mappings for the context.
     /// </summary>
     /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -95,5 +106,25 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<RolePermission>(builder => builder.HasKey(x => new { x.RoleId, x.PermissionId }));
         modelBuilder.Entity<UserGroup>(builder => builder.HasKey(x => new { x.UserId, x.GroupId }));
         modelBuilder.Entity<GroupRole>(builder => builder.HasKey(x => new { x.GroupId, x.RoleId }));
+        modelBuilder.Entity<ExternalIdentity>(builder =>
+        {
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Provider)
+                .HasConversion(
+                    provider => provider.Value,
+                    value => ExternalProvider.From(value));
+            builder.Property(x => x.SubjectId)
+                .HasConversion(
+                    subject => subject.Value,
+                    value => ExternalSubjectId.From(value));
+        });
+        modelBuilder.Entity<ExternalToken>(builder =>
+        {
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Provider)
+                .HasConversion(
+                    provider => provider.Value,
+                    value => ExternalProvider.From(value));
+        });
     }
 }

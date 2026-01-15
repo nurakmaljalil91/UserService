@@ -1,7 +1,11 @@
 ﻿#nullable enable
+using Application.Common.Interfaces;
+using IntegrationTests.TestInfrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace IntegrationTests;
 
@@ -28,10 +32,23 @@ public class ApiFactory : WebApplicationFactory<Program>
                 ["Jwt:Issuer"] = "IntegrationTests",
                 ["Jwt:Audience"] = "IntegrationTests",
                 ["Jwt:Key"] = "integration-tests-super-secret-key-1234567890",
-                ["Jwt:ExpiryMinutes"] = "60"
+                ["Jwt:ExpiryMinutes"] = "60",
+                ["ExternalLink:StateSigningKey"] = "integration-tests-external-link-key",
+                ["ExternalLink:StateExpiryMinutes"] = "15"
             };
 
             config.AddInMemoryCollection(settings);
+        });
+
+        builder.ConfigureServices(services =>
+        {
+            services.RemoveAll<IGoogleOAuthService>();
+            services.RemoveAll<IExternalLinkStateService>();
+            services.RemoveAll<IExternalTokenProtector>();
+
+            services.AddSingleton<IGoogleOAuthService, TestGoogleOAuthService>();
+            services.AddSingleton<IExternalLinkStateService, TestExternalLinkStateService>();
+            services.AddSingleton<IExternalTokenProtector, TestExternalTokenProtector>();
         });
     }
 }

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -125,4 +125,14 @@ public class User : BaseEntity<Guid>
     /// Gets the preferences associated with the user.
     /// </summary>
     public IList<UserPreference> UserPreferences { get; private set; } = new List<UserPreference>();
+
+    /// <summary>
+    /// Gets the external identities linked to the user.
+    /// </summary>
+    public IList<ExternalIdentity> ExternalIdentities { get; private set; } = new List<ExternalIdentity>();
+
+    /// <summary>
+    /// Gets the external OAuth tokens linked to the user.
+    /// </summary>
+    public IList<ExternalToken> ExternalTokens { get; private set; } = new List<ExternalToken>();
 }
