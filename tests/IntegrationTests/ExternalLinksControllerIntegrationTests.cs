@@ -1,10 +1,11 @@
-#nullable enable
+﻿#nullable enable
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
+using Application.Common.Interfaces;
 using Application.ExternalLinks.Models;
 using Domain.Common;
 using IntegrationTests.TestInfrastructure;
@@ -79,8 +80,10 @@ public sealed class ExternalLinksControllerIntegrationTests : ApiTestBase
         });
         completeResponse.EnsureSuccessStatusCode();
 
-        var stateService = _factory.Services.GetRequiredService<TestExternalLinkStateService>();
-        var userId = stateService.LastUserId;
+        // Retrieve the external link state service via the interface to avoid DI issues with concrete type
+        var scope = _factory.Services.CreateScope();
+        var stateService = scope.ServiceProvider.GetRequiredService<IExternalLinkStateService>();
+        var userId = (stateService as TestExternalLinkStateService)?.LastUserId ?? Guid.Empty;
 
         using var plannerClient = CreateClient();
         plannerClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", CreatePlannerToken());
