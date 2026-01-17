@@ -15,7 +15,9 @@ public class AuthenticationsControllerTests
     [Fact]
     public async Task Login_ReturnsOk_WhenSuccess()
     {
-        var response = BaseResponse<LoginResponse>.Ok(new LoginResponse("token", DateTime.UtcNow), "Login successful.");
+        var response = BaseResponse<LoginResponse>.Ok(
+            new LoginResponse("token", DateTime.UtcNow, "refresh-token", DateTime.UtcNow.AddDays(30)),
+            "Login successful.");
         var mediator = new TestMediator(_ => Task.FromResult<object>(response));
         var controller = new AuthenticationsController(mediator);
 
@@ -54,5 +56,36 @@ public class AuthenticationsControllerTests
         var payload = Assert.IsType<BaseResponse<string>>(ok.Value);
         Assert.True(payload.Success);
         Assert.Same(response, payload);
+    }
+
+    [Fact]
+    public async Task Refresh_ReturnsOk_WhenSuccess()
+    {
+        var response = BaseResponse<LoginResponse>.Ok(
+            new LoginResponse("token", DateTime.UtcNow, "refresh-token", DateTime.UtcNow.AddDays(30)),
+            "Token refreshed.");
+        var mediator = new TestMediator(_ => Task.FromResult<object>(response));
+        var controller = new AuthenticationsController(mediator);
+
+        var result = await controller.Refresh(new RefreshTokenCommand { RefreshToken = "refresh-token" });
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+        var payload = Assert.IsType<BaseResponse<LoginResponse>>(ok.Value);
+        Assert.True(payload.Success);
+        Assert.Same(response, payload);
+    }
+
+    [Fact]
+    public async Task Refresh_ReturnsBadRequest_WhenFailure()
+    {
+        var response = BaseResponse<LoginResponse>.Fail("Invalid refresh token.");
+        var mediator = new TestMediator(_ => Task.FromResult<object>(response));
+        var controller = new AuthenticationsController(mediator);
+
+        var result = await controller.Refresh(new RefreshTokenCommand { RefreshToken = "refresh-token" });
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        var payload = Assert.IsType<BaseResponse<LoginResponse>>(badRequest.Value);
+        Assert.False(payload.Success);
     }
 }

@@ -9,5 +9,7 @@ namespace Application.Authentications.Models;
 /// </summary>
 public sealed record LoginResponse(
     string Token,
-    DateTime ExpiresAt
+    DateTime ExpiresAt,
+    string RefreshToken,
+    DateTime RefreshTokenExpiresAt
 );

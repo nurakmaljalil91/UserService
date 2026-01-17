@@ -47,6 +47,16 @@ public sealed class AuthenticationsController : ControllerBase
     }
 
     /// <summary>
+    /// Refreshes an access token using a refresh token.
+    /// </summary>
+    [HttpPost("refresh")]
+    public async Task<ActionResult<BaseResponse<LoginResponse>>> Refresh([FromBody] RefreshTokenCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
     /// Resets a user's password.
     /// </summary>
     [HttpPost("reset-password")]

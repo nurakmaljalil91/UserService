@@ -7,10 +7,8 @@ using FluentValidation;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using NodaTime;
+using System.Security.Cryptography;
 
 namespace Application.Authentications.Commands;
 
@@ -40,8 +38,7 @@ public class LoginCommand : IRequest<BaseResponse<LoginResponse>>
 /// </summary>
 public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<LoginResponse>>
 {
-    private const int DefaultExpiryMinutes = 60;
-    private const string DefaultRole = "User";
+    private const int DefaultRefreshExpiryDays = 30;
     private const string InvalidCredentialsMessage = "Invalid username or password.";
 
     private readonly IApplicationDbContext _context;
@@ -49,6 +46,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
     private readonly IDateTime _dateTime;
     private readonly IClockService _clockService;
     private readonly IConfiguration _configuration;
+    private readonly IRefreshTokenHasher _refreshTokenHasher;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LoginCommandHandler"/> class.
@@ -63,13 +61,15 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
         IPasswordHasherService passwordHasher,
         IDateTime dateTime,
         IClockService clockService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IRefreshTokenHasher refreshTokenHasher)
     {
         _context = context;
         _passwordHasher = passwordHasher;
         _dateTime = dateTime;
         _clockService = clockService;
         _configuration = configuration;
+        _refreshTokenHasher = refreshTokenHasher;
     }
 
     /// <summary>
@@ -116,68 +116,37 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
 
         user.AccessFailedCount = 0;
 
-        var jwtSection = _configuration.GetSection("Jwt");
-        var issuer = jwtSection["Issuer"];
-        var audience = jwtSection["Audience"];
-        var key = jwtSection["Key"];
-
-        if (string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience) || string.IsNullOrWhiteSpace(key))
+        var jwtToken = JwtTokenFactory.Create(user, _configuration, _dateTime);
+        if (!jwtToken.Success)
         {
-            await RecordLoginAttemptAsync(user.Id, identifier, false, "JWT configuration is missing.");
+            await RecordLoginAttemptAsync(user.Id, identifier, false, jwtToken.Error);
             await _context.SaveChangesAsync(cancellationToken);
-            return BaseResponse<LoginResponse>.Fail("JWT configuration is missing.");
+            return BaseResponse<LoginResponse>.Fail(jwtToken.Error ?? "JWT configuration is missing.");
         }
 
-        var expiryMinutes = DefaultExpiryMinutes;
-        if (int.TryParse(jwtSection["ExpiryMinutes"], out var configuredMinutes) && configuredMinutes > 0)
+        var refreshToken = CreateRefreshToken();
+        var refreshTokenHash = _refreshTokenHasher.Hash(refreshToken);
+        var refreshExpiryDays = ResolveRefreshExpiryDays();
+        var refreshExpiresAt = _clockService.Now + Duration.FromDays(refreshExpiryDays);
+
+        _context.Sessions.Add(new Session
         {
-            expiryMinutes = configuredMinutes;
-        }
-
-        var identity = string.IsNullOrWhiteSpace(user.Username) ? user.Email : user.Username;
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, identity ?? user.Id.ToString())
-        };
-
-        if (!string.IsNullOrWhiteSpace(user.Email))
-        {
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
-        }
-
-        var roles = user.UserRoles
-            .Select(ur => ur.Role?.Name)
-            .Where(name => !string.IsNullOrWhiteSpace(name))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        if (roles.Count == 0)
-        {
-            roles.Add(DefaultRole);
-        }
-
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role!));
-        }
-
-        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-        var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-        var expires = _dateTime.UtcNow.AddMinutes(expiryMinutes);
-
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: expires,
-            signingCredentials: creds);
-
-        var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
+            UserId = user.Id,
+            RefreshToken = refreshTokenHash,
+            ExpiresAt = refreshExpiresAt,
+            IsRevoked = false
+        });
 
         await RecordLoginAttemptAsync(user.Id, identifier, true, null);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return BaseResponse<LoginResponse>.Ok(new LoginResponse(tokenValue, expires), "Login successful.");
+        return BaseResponse<LoginResponse>.Ok(
+            new LoginResponse(
+                jwtToken.Token,
+                jwtToken.ExpiresAt,
+                refreshToken,
+                refreshExpiresAt.ToDateTimeUtc()),
+            "Login successful.");
     }
 
     private Task RecordLoginAttemptAsync(
@@ -196,6 +165,24 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
         });
 
         return Task.CompletedTask;
+    }
+
+    private int ResolveRefreshExpiryDays()
+    {
+        var jwtSection = _configuration.GetSection("Jwt");
+        if (int.TryParse(jwtSection["RefreshTokenExpiryDays"], out var configuredDays) && configuredDays > 0)
+        {
+            return configuredDays;
+        }
+
+        return DefaultRefreshExpiryDays;
+    }
+
+    private static string CreateRefreshToken()
+    {
+        Span<byte> bytes = stackalloc byte[64];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToBase64String(bytes);
     }
 }
 

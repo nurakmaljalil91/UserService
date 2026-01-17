@@ -83,6 +83,7 @@ public static class DependencyInjection
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IClockService, ClockService>();
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+        services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
         services.AddDataProtection();
         services.AddScoped<IExternalTokenProtector, ExternalTokenProtector>();
         services.AddScoped<IExternalLinkStateService, ExternalLinkStateService>();
