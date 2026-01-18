@@ -12,6 +12,15 @@ using Application.ExternalLinks.Queries;
 using Application.Groups.Commands;
 using Application.Groups.Models;
 using Application.Groups.Queries;
+using Application.Addresses.Commands;
+using Application.Addresses.Models;
+using Application.Addresses.Queries;
+using Application.Consents.Commands;
+using Application.Consents.Models;
+using Application.Consents.Queries;
+using Application.ContactMethods.Commands;
+using Application.ContactMethods.Models;
+using Application.ContactMethods.Queries;
 using Application.Permissions.Commands;
 using Application.Permissions.Models;
 using Application.Permissions.Queries;
@@ -21,6 +30,15 @@ using Application.Roles.Queries;
 using Application.Users.Commands;
 using Application.Users.Models;
 using Application.Users.Queries;
+using Application.UserProfiles.Commands;
+using Application.UserProfiles.Models;
+using Application.UserProfiles.Queries;
+using Application.UserPreferences.Commands;
+using Application.UserPreferences.Models;
+using Application.UserPreferences.Queries;
+using Application.Sessions.Commands;
+using Application.Sessions.Models;
+using Application.Sessions.Queries;
 using Domain.Common;
 using FluentValidation;
 using Mediator;
@@ -51,6 +69,42 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<SoftDeleteUserCommand, BaseResponse<string>>, SoftDeleteUserCommandHandler>();
         services.AddScoped<IRequestHandler<GetUserByIdQuery, BaseResponse<UserDto>>, GetUserByIdQueryHandler>();
         services.AddScoped<IRequestHandler<GetUsersQuery, BaseResponse<PaginatedEnumerable<UserDto>>>, GetUsersQueryHandler>();
+        services.AddScoped<IRequestHandler<GetAddressesQuery, BaseResponse<PaginatedEnumerable<AddressDto>>>,
+            GetAddressesQueryHandler>();
+        services.AddScoped<IRequestHandler<GetAddressByIdQuery, BaseResponse<AddressDto>>, GetAddressByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreateAddressCommand, BaseResponse<AddressDto>>, CreateAddressCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateAddressCommand, BaseResponse<AddressDto>>, UpdateAddressCommandHandler>();
+        services.AddScoped<IRequestHandler<DeleteAddressCommand, BaseResponse<string>>, DeleteAddressCommandHandler>();
+        services.AddScoped<IRequestHandler<GetConsentsQuery, BaseResponse<PaginatedEnumerable<ConsentDto>>>,
+            GetConsentsQueryHandler>();
+        services.AddScoped<IRequestHandler<GetConsentByIdQuery, BaseResponse<ConsentDto>>, GetConsentByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreateConsentCommand, BaseResponse<ConsentDto>>, CreateConsentCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateConsentCommand, BaseResponse<ConsentDto>>, UpdateConsentCommandHandler>();
+        services.AddScoped<IRequestHandler<DeleteConsentCommand, BaseResponse<string>>, DeleteConsentCommandHandler>();
+        services.AddScoped<IRequestHandler<GetContactMethodsQuery, BaseResponse<PaginatedEnumerable<ContactMethodDto>>>,
+            GetContactMethodsQueryHandler>();
+        services.AddScoped<IRequestHandler<GetContactMethodByIdQuery, BaseResponse<ContactMethodDto>>, GetContactMethodByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreateContactMethodCommand, BaseResponse<ContactMethodDto>>, CreateContactMethodCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateContactMethodCommand, BaseResponse<ContactMethodDto>>, UpdateContactMethodCommandHandler>();
+        services.AddScoped<IRequestHandler<DeleteContactMethodCommand, BaseResponse<string>>, DeleteContactMethodCommandHandler>();
+        services.AddScoped<IRequestHandler<GetUserProfilesQuery, BaseResponse<PaginatedEnumerable<UserProfileDto>>>,
+            GetUserProfilesQueryHandler>();
+        services.AddScoped<IRequestHandler<GetUserProfileByIdQuery, BaseResponse<UserProfileDto>>, GetUserProfileByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreateUserProfileCommand, BaseResponse<UserProfileDto>>, CreateUserProfileCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateUserProfileCommand, BaseResponse<UserProfileDto>>, UpdateUserProfileCommandHandler>();
+        services.AddScoped<IRequestHandler<DeleteUserProfileCommand, BaseResponse<string>>, DeleteUserProfileCommandHandler>();
+        services.AddScoped<IRequestHandler<GetUserPreferencesQuery, BaseResponse<PaginatedEnumerable<UserPreferenceDto>>>,
+            GetUserPreferencesQueryHandler>();
+        services.AddScoped<IRequestHandler<GetUserPreferenceByIdQuery, BaseResponse<UserPreferenceDto>>, GetUserPreferenceByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreateUserPreferenceCommand, BaseResponse<UserPreferenceDto>>, CreateUserPreferenceCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateUserPreferenceCommand, BaseResponse<UserPreferenceDto>>, UpdateUserPreferenceCommandHandler>();
+        services.AddScoped<IRequestHandler<DeleteUserPreferenceCommand, BaseResponse<string>>, DeleteUserPreferenceCommandHandler>();
+        services.AddScoped<IRequestHandler<GetSessionsQuery, BaseResponse<PaginatedEnumerable<SessionDto>>>,
+            GetSessionsQueryHandler>();
+        services.AddScoped<IRequestHandler<GetSessionByIdQuery, BaseResponse<SessionDto>>, GetSessionByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreateSessionCommand, BaseResponse<SessionDto>>, CreateSessionCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateSessionCommand, BaseResponse<SessionDto>>, UpdateSessionCommandHandler>();
+        services.AddScoped<IRequestHandler<DeleteSessionCommand, BaseResponse<string>>, DeleteSessionCommandHandler>();
         services.AddScoped<IRequestHandler<GetRolesQuery, BaseResponse<PaginatedEnumerable<RoleDto>>>, GetRolesQueryHandler>();
         services.AddScoped<IRequestHandler<GetRoleByIdQuery, BaseResponse<RoleDto>>, GetRoleByIdQueryHandler>();
         services.AddScoped<IRequestHandler<CreateRoleCommand, BaseResponse<RoleDto>>, CreateRoleCommandHandler>();

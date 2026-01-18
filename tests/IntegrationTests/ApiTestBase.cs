@@ -250,6 +250,312 @@ public abstract class ApiTestBase
         public IReadOnlyCollection<string>? Roles { get; set; }
     }
 
+    /// <summary>
+    /// Represents a response containing details of a user profile.
+    /// </summary>
+    protected sealed class UserProfileResponse
+    {
+        /// <summary>
+        /// Gets or sets the unique identifier of the user profile.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user identifier.
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the display name shown to other users.
+        /// </summary>
+        public string? DisplayName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user's first name.
+        /// </summary>
+        public string? FirstName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user's last name.
+        /// </summary>
+        public string? LastName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the national identity card number.
+        /// </summary>
+        public string? IdentityCardNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the passport number.
+        /// </summary>
+        public string? PassportNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date of birth in yyyy-MM-dd format.
+        /// </summary>
+        public string? DateOfBirth { get; set; }
+
+        /// <summary>
+        /// Gets or sets the place of birth.
+        /// </summary>
+        public string? BirthPlace { get; set; }
+
+        /// <summary>
+        /// Gets or sets the shoe size.
+        /// </summary>
+        public string? ShoeSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the clothing size.
+        /// </summary>
+        public string? ClothingSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the waist size.
+        /// </summary>
+        public string? WaistSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the profile bio.
+        /// </summary>
+        public string? Bio { get; set; }
+
+        /// <summary>
+        /// Gets or sets the profile image URL.
+        /// </summary>
+        public string? ImageUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the profile tag.
+        /// </summary>
+        public string? Tag { get; set; }
+
+        /// <summary>
+        /// Gets or sets the blood type recorded for the user.
+        /// </summary>
+        public string? BloodType { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a response containing details of a user preference.
+    /// </summary>
+    protected sealed class UserPreferenceResponse
+    {
+        /// <summary>
+        /// Gets or sets the unique identifier of the user preference.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user identifier.
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the preference key.
+        /// </summary>
+        public string? Key { get; set; }
+
+        /// <summary>
+        /// Gets or sets the preference value.
+        /// </summary>
+        public string? Value { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a response containing details of a session.
+    /// </summary>
+    protected sealed class SessionResponse
+    {
+        /// <summary>
+        /// Gets or sets the unique identifier of the session.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user identifier.
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the refresh token for the session.
+        /// </summary>
+        public string? RefreshToken { get; set; }
+
+        /// <summary>
+        /// Gets or sets the expiration date for the session in UTC.
+        /// </summary>
+        public string? ExpiresAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time the session was revoked in UTC.
+        /// </summary>
+        public string? RevokedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the IP address associated with the session.
+        /// </summary>
+        public string? IpAddress { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user agent associated with the session.
+        /// </summary>
+        public string? UserAgent { get; set; }
+
+        /// <summary>
+        /// Gets or sets the device name associated with the session.
+        /// </summary>
+        public string? DeviceName { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the session is revoked.
+        /// </summary>
+        public bool IsRevoked { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a response containing details of an address.
+    /// </summary>
+    protected sealed class AddressResponse
+    {
+        /// <summary>
+        /// Gets or sets the unique identifier of the address.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user identifier.
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the address label.
+        /// </summary>
+        public string? Label { get; set; }
+
+        /// <summary>
+        /// Gets or sets the address type.
+        /// </summary>
+        public string? Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets the first address line.
+        /// </summary>
+        public string? Line1 { get; set; }
+
+        /// <summary>
+        /// Gets or sets the second address line.
+        /// </summary>
+        public string? Line2 { get; set; }
+
+        /// <summary>
+        /// Gets or sets the city.
+        /// </summary>
+        public string? City { get; set; }
+
+        /// <summary>
+        /// Gets or sets the state or region.
+        /// </summary>
+        public string? State { get; set; }
+
+        /// <summary>
+        /// Gets or sets the postal code.
+        /// </summary>
+        public string? PostalCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the country.
+        /// </summary>
+        public string? Country { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the address is default.
+        /// </summary>
+        public bool IsDefault { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a response containing details of a consent.
+    /// </summary>
+    protected sealed class ConsentResponse
+    {
+        /// <summary>
+        /// Gets or sets the unique identifier of the consent.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user identifier.
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the consent type.
+        /// </summary>
+        public string? Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the consent is granted.
+        /// </summary>
+        public bool IsGranted { get; set; }
+
+        /// <summary>
+        /// Gets or sets when the consent was granted or revoked in UTC.
+        /// </summary>
+        public string? GrantedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the consent version.
+        /// </summary>
+        public string? Version { get; set; }
+
+        /// <summary>
+        /// Gets or sets the consent source.
+        /// </summary>
+        public string? Source { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a response containing details of a contact method.
+    /// </summary>
+    protected sealed class ContactMethodResponse
+    {
+        /// <summary>
+        /// Gets or sets the unique identifier of the contact method.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user identifier.
+        /// </summary>
+        public Guid UserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the contact method type.
+        /// </summary>
+        public string? Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets the contact value.
+        /// </summary>
+        public string? Value { get; set; }
+
+        /// <summary>
+        /// Gets or sets the normalized contact value.
+        /// </summary>
+        public string? NormalizedValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the contact method is verified.
+        /// </summary>
+        public bool IsVerified { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the contact method is primary.
+        /// </summary>
+        public bool IsPrimary { get; set; }
+    }
+
 #nullable restore
 
     /// <summary>
