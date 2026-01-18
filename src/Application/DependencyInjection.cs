@@ -72,12 +72,16 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<GetUsersQuery, BaseResponse<PaginatedEnumerable<UserDto>>>, GetUsersQueryHandler>();
         services.AddScoped<IRequestHandler<GetAddressesQuery, BaseResponse<PaginatedEnumerable<AddressDto>>>,
             GetAddressesQueryHandler>();
+        services.AddScoped<IRequestHandler<GetMyAddressesQuery, BaseResponse<PaginatedEnumerable<AddressDto>>>,
+            GetMyAddressesQueryHandler>();
         services.AddScoped<IRequestHandler<GetAddressByIdQuery, BaseResponse<AddressDto>>, GetAddressByIdQueryHandler>();
         services.AddScoped<IRequestHandler<CreateAddressCommand, BaseResponse<AddressDto>>, CreateAddressCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateAddressCommand, BaseResponse<AddressDto>>, UpdateAddressCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteAddressCommand, BaseResponse<string>>, DeleteAddressCommandHandler>();
         services.AddScoped<IRequestHandler<GetConsentsQuery, BaseResponse<PaginatedEnumerable<ConsentDto>>>,
             GetConsentsQueryHandler>();
+        services.AddScoped<IRequestHandler<GetMyConsentsQuery, BaseResponse<PaginatedEnumerable<ConsentDto>>>,
+            GetMyConsentsQueryHandler>();
         services.AddScoped<IRequestHandler<GetConsentByIdQuery, BaseResponse<ConsentDto>>, GetConsentByIdQueryHandler>();
         services.AddScoped<IRequestHandler<CreateConsentCommand, BaseResponse<ConsentDto>>, CreateConsentCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateConsentCommand, BaseResponse<ConsentDto>>, UpdateConsentCommandHandler>();
@@ -91,22 +95,28 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<GetUserProfilesQuery, BaseResponse<PaginatedEnumerable<UserProfileDto>>>,
             GetUserProfilesQueryHandler>();
         services.AddScoped<IRequestHandler<GetUserProfileByIdQuery, BaseResponse<UserProfileDto>>, GetUserProfileByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<GetMyUserProfileQuery, BaseResponse<UserProfileDto>>, GetMyUserProfileQueryHandler>();
         services.AddScoped<IRequestHandler<CreateUserProfileCommand, BaseResponse<UserProfileDto>>, CreateUserProfileCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateUserProfileCommand, BaseResponse<UserProfileDto>>, UpdateUserProfileCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteUserProfileCommand, BaseResponse<string>>, DeleteUserProfileCommandHandler>();
         services.AddScoped<IRequestHandler<GetUserPreferencesQuery, BaseResponse<PaginatedEnumerable<UserPreferenceDto>>>,
             GetUserPreferencesQueryHandler>();
+        services.AddScoped<IRequestHandler<GetMyUserPreferencesQuery, BaseResponse<PaginatedEnumerable<UserPreferenceDto>>>,
+            GetMyUserPreferencesQueryHandler>();
         services.AddScoped<IRequestHandler<GetUserPreferenceByIdQuery, BaseResponse<UserPreferenceDto>>, GetUserPreferenceByIdQueryHandler>();
         services.AddScoped<IRequestHandler<CreateUserPreferenceCommand, BaseResponse<UserPreferenceDto>>, CreateUserPreferenceCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateUserPreferenceCommand, BaseResponse<UserPreferenceDto>>, UpdateUserPreferenceCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteUserPreferenceCommand, BaseResponse<string>>, DeleteUserPreferenceCommandHandler>();
         services.AddScoped<IRequestHandler<GetSessionsQuery, BaseResponse<PaginatedEnumerable<SessionDto>>>,
             GetSessionsQueryHandler>();
+        services.AddScoped<IRequestHandler<GetMySessionsQuery, BaseResponse<PaginatedEnumerable<SessionDto>>>,
+            GetMySessionsQueryHandler>();
         services.AddScoped<IRequestHandler<GetSessionByIdQuery, BaseResponse<SessionDto>>, GetSessionByIdQueryHandler>();
         services.AddScoped<IRequestHandler<CreateSessionCommand, BaseResponse<SessionDto>>, CreateSessionCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateSessionCommand, BaseResponse<SessionDto>>, UpdateSessionCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteSessionCommand, BaseResponse<string>>, DeleteSessionCommandHandler>();
         services.AddScoped<IRequestHandler<GetRolesQuery, BaseResponse<PaginatedEnumerable<RoleDto>>>, GetRolesQueryHandler>();
+        services.AddScoped<IRequestHandler<GetMyRolesQuery, BaseResponse<PaginatedEnumerable<RoleDto>>>, GetMyRolesQueryHandler>();
         services.AddScoped<IRequestHandler<GetRoleByIdQuery, BaseResponse<RoleDto>>, GetRoleByIdQueryHandler>();
         services.AddScoped<IRequestHandler<CreateRoleCommand, BaseResponse<RoleDto>>, CreateRoleCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateRoleCommand, BaseResponse<RoleDto>>, UpdateRoleCommandHandler>();
@@ -119,6 +129,7 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<UpdatePermissionCommand, BaseResponse<PermissionDto>>, UpdatePermissionCommandHandler>();
         services.AddScoped<IRequestHandler<DeletePermissionCommand, BaseResponse<string>>, DeletePermissionCommandHandler>();
         services.AddScoped<IRequestHandler<GetGroupsQuery, BaseResponse<PaginatedEnumerable<GroupDto>>>, GetGroupsQueryHandler>();
+        services.AddScoped<IRequestHandler<GetMyGroupsQuery, BaseResponse<PaginatedEnumerable<GroupDto>>>, GetMyGroupsQueryHandler>();
         services.AddScoped<IRequestHandler<GetGroupByIdQuery, BaseResponse<GroupDto>>, GetGroupByIdQueryHandler>();
         services.AddScoped<IRequestHandler<CreateGroupCommand, BaseResponse<GroupDto>>, CreateGroupCommandHandler>();
         services.AddScoped<IRequestHandler<AssignRoleToGroupCommand, BaseResponse<GroupDto>>, AssignRoleToGroupCommandHandler>();

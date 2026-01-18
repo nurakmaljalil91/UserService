@@ -8,6 +8,11 @@ namespace Application.Common.Interfaces;
 public interface IUser
 {
     /// <summary>
+    /// Gets the unique identifier of the current user, or <c>null</c> if not available.
+    /// </summary>
+    Guid? UserId { get; }
+
+    /// <summary>
     /// Gets the username of the current user, or <c>null</c> if not available.
     /// </summary>
     string? Username { get; }

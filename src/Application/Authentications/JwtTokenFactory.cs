@@ -16,6 +16,8 @@ internal static class JwtTokenFactory
 {
     private const int DefaultExpiryMinutes = 60;
     private const string DefaultRole = "User";
+    private const string RoleClaimType = "role";
+    private const string PreferredUsernameClaimType = "preferred_username";
 
     public static JwtTokenResult Create(User user, IConfiguration configuration, IDateTime dateTime)
     {
@@ -37,15 +39,20 @@ internal static class JwtTokenFactory
             expiryMinutes = configuredMinutes;
         }
 
-        var identity = string.IsNullOrWhiteSpace(user.Username) ? user.Email : user.Username;
+        var preferredUsername = string.IsNullOrWhiteSpace(user.Username) ? user.Email : user.Username;
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, identity ?? user.Id.ToString())
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString())
         };
+
+        if (!string.IsNullOrWhiteSpace(preferredUsername))
+        {
+            claims.Add(new Claim(PreferredUsernameClaimType, preferredUsername));
+        }
 
         if (!string.IsNullOrWhiteSpace(user.Email))
         {
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
         }
 
         var roles = user.UserRoles
@@ -61,7 +68,7 @@ internal static class JwtTokenFactory
 
         foreach (var role in roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role!));
+            claims.Add(new Claim(RoleClaimType, role!));
         }
 
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));

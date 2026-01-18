@@ -106,7 +106,8 @@ public sealed class ExternalLinksControllerIntegrationTests : ApiTestBase
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, "planner-service"),
+            new Claim(JwtRegisteredClaimNames.Sub, "planner-service"),
+            new Claim("preferred_username", "planner-service"),
             new Claim("service", "planner")
         };
 

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Domain.Common;
+using System.Linq;
 
 namespace IntegrationTests;
 
@@ -177,5 +178,78 @@ public class GroupsControllerIntegrationTests : ApiTestBase
         var fetchedUser = await ReadResponseAsync<BaseResponse<UserResponse>>(getUserResponse);
         Assert.True(fetchedUser.Success);
         Assert.Contains(createdGroup.Data!.Name, fetchedUser.Data!.Groups ?? Array.Empty<string>());
+    }
+
+    /// <summary>
+    /// Ensures the current user's groups can be retrieved via the me route.
+    /// </summary>
+    [Fact]
+    public async Task GetMyGroups_ReturnsCurrentUserGroups()
+    {
+        var authenticated = await CreateAuthenticatedClientWithUserAsync();
+        using var client = authenticated.Client;
+        var userId = authenticated.UserId;
+
+        var otherUserId = await CreateUserAsync(client);
+
+        var unique = Guid.NewGuid().ToString("N");
+        var groupResponse = await client.PostAsJsonAsync("/api/Groups", new
+        {
+            Name = $"group-{unique}",
+            Description = "Integration test group"
+        });
+        Assert.Equal(HttpStatusCode.Created, groupResponse.StatusCode);
+        var currentGroup = await ReadResponseAsync<BaseResponse<GroupResponse>>(groupResponse);
+
+        var otherGroupResponse = await client.PostAsJsonAsync("/api/Groups", new
+        {
+            Name = $"group-other-{unique}",
+            Description = "Integration test group other"
+        });
+        Assert.Equal(HttpStatusCode.Created, otherGroupResponse.StatusCode);
+        var otherGroup = await ReadResponseAsync<BaseResponse<GroupResponse>>(otherGroupResponse);
+
+        var assignCurrent = await client.PostAsJsonAsync($"/api/Groups/{currentGroup.Data!.Id}/assign-user", new
+        {
+            UserId = userId
+        });
+        Assert.Equal(HttpStatusCode.OK, assignCurrent.StatusCode);
+
+        var assignOther = await client.PostAsJsonAsync($"/api/Groups/{otherGroup.Data!.Id}/assign-user", new
+        {
+            UserId = otherUserId
+        });
+        Assert.Equal(HttpStatusCode.OK, assignOther.StatusCode);
+
+        var meResponse = await client.GetAsync("/api/Groups/me?page=1&total=10");
+        Assert.Equal(HttpStatusCode.OK, meResponse.StatusCode);
+
+        var payload = await ReadResponseAsync<BaseResponse<PaginatedResponse<GroupResponse>>>(meResponse);
+        Assert.True(payload.Success);
+        Assert.Single(payload.Data!.Items!);
+        Assert.Equal(currentGroup.Data.Id, payload.Data.Items!.First().Id);
+    }
+
+    /// <summary>
+    /// Creates a user for integration testing and returns the identifier.
+    /// </summary>
+    /// <param name="client">The HTTP client used to call the API.</param>
+    /// <returns>The created user identifier.</returns>
+    private static async Task<Guid> CreateUserAsync(HttpClient client)
+    {
+        var unique = Guid.NewGuid().ToString("N");
+        var createUserResponse = await client.PostAsJsonAsync("/api/Users", new
+        {
+            Username = $"group-me-user-{unique}",
+            Email = $"group-me-{unique}@example.com",
+            Password = "User123!"
+        });
+        Assert.Equal(HttpStatusCode.Created, createUserResponse.StatusCode);
+
+        var created = await ReadResponseAsync<BaseResponse<UserResponse>>(createUserResponse);
+        Assert.True(created.Success);
+        Assert.NotNull(created.Data);
+
+        return created.Data!.Id;
     }
 }

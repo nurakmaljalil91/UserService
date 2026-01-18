@@ -41,6 +41,17 @@ public sealed class RolesController : ControllerBase
         => Ok(await _mediator.Send(query));
 
     /// <summary>
+    /// Retrieves a paginated list of the current user's roles.
+    /// </summary>
+    /// <param name="query">The query parameters for filtering, sorting, and paginating roles.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing a paginated list of <see cref="RoleDto"/> objects.
+    /// </returns>
+    [HttpGet("me")]
+    public async Task<ActionResult<BaseResponse<PaginatedEnumerable<RoleDto>>>> GetMyRoles([FromQuery] GetMyRolesQuery query)
+        => Ok(await _mediator.Send(query));
+
+    /// <summary>
     /// Retrieves a role by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the role to retrieve.</param>

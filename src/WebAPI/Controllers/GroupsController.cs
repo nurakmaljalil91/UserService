@@ -41,6 +41,17 @@ public sealed class GroupsController : ControllerBase
         => Ok(await _mediator.Send(query));
 
     /// <summary>
+    /// Retrieves a paginated list of the current user's groups.
+    /// </summary>
+    /// <param name="query">The query parameters for filtering, sorting, and paginating groups.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing a paginated list of <see cref="GroupDto"/> objects.
+    /// </returns>
+    [HttpGet("me")]
+    public async Task<ActionResult<BaseResponse<PaginatedEnumerable<GroupDto>>>> GetMyGroups([FromQuery] GetMyGroupsQuery query)
+        => Ok(await _mediator.Send(query));
+
+    /// <summary>
     /// Retrieves a group by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the group to retrieve.</param>

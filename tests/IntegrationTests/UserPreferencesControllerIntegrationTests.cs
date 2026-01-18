@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Domain.Common;
+using System.Linq;
 
 namespace IntegrationTests;
 
@@ -77,6 +78,43 @@ public class UserPreferencesControllerIntegrationTests : ApiTestBase
 
         var getDeletedResponse = await client.GetAsync($"/api/UserPreferences/{preferenceId}");
         Assert.Equal(HttpStatusCode.NotFound, getDeletedResponse.StatusCode);
+    }
+
+    /// <summary>
+    /// Ensures the current user's preferences can be retrieved via the me route.
+    /// </summary>
+    [Fact]
+    public async Task GetMyUserPreferences_ReturnsCurrentUserPreferences()
+    {
+        var authenticated = await CreateAuthenticatedClientWithUserAsync();
+        using var client = authenticated.Client;
+        var userId = authenticated.UserId;
+
+        var otherUserId = await CreateUserAsync(client);
+
+        var currentResponse = await client.PostAsJsonAsync("/api/UserPreferences", new
+        {
+            UserId = userId,
+            Key = "ui.theme",
+            Value = "dark"
+        });
+        Assert.Equal(HttpStatusCode.Created, currentResponse.StatusCode);
+
+        var otherResponse = await client.PostAsJsonAsync("/api/UserPreferences", new
+        {
+            UserId = otherUserId,
+            Key = "ui.theme",
+            Value = "light"
+        });
+        Assert.Equal(HttpStatusCode.Created, otherResponse.StatusCode);
+
+        var meResponse = await client.GetAsync("/api/UserPreferences/me?page=1&total=10");
+        Assert.Equal(HttpStatusCode.OK, meResponse.StatusCode);
+
+        var payload = await ReadResponseAsync<BaseResponse<PaginatedResponse<UserPreferenceResponse>>>(meResponse);
+        Assert.True(payload.Success);
+        Assert.Single(payload.Data!.Items!);
+        Assert.Equal(userId, payload.Data.Items!.First().UserId);
     }
 
     /// <summary>

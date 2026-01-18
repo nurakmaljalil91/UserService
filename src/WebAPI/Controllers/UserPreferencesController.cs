@@ -42,6 +42,18 @@ public sealed class UserPreferencesController : ControllerBase
         => Ok(await _mediator.Send(query));
 
     /// <summary>
+    /// Retrieves a paginated list of the current user's preferences.
+    /// </summary>
+    /// <param name="query">The query parameters for filtering, sorting, and paginating user preferences.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing a paginated list of <see cref="UserPreferenceDto"/> objects.
+    /// </returns>
+    [HttpGet("me")]
+    public async Task<ActionResult<BaseResponse<PaginatedEnumerable<UserPreferenceDto>>>> GetMyUserPreferences(
+        [FromQuery] GetMyUserPreferencesQuery query)
+        => Ok(await _mediator.Send(query));
+
+    /// <summary>
     /// Retrieves a user preference by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the user preference to retrieve.</param>

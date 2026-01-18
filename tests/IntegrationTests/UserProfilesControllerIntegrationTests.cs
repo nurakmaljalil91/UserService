@@ -84,6 +84,33 @@ public class UserProfilesControllerIntegrationTests : ApiTestBase
     }
 
     /// <summary>
+    /// Ensures the current user's profile can be retrieved via the me route.
+    /// </summary>
+    [Fact]
+    public async Task GetMyProfile_ReturnsCurrentUserProfile()
+    {
+        var authenticated = await CreateAuthenticatedClientWithUserAsync();
+        using var client = authenticated.Client;
+        var userId = authenticated.UserId;
+
+        var createResponse = await client.PostAsJsonAsync("/api/UserProfiles", new
+        {
+            UserId = userId,
+            DisplayName = "Self Profile",
+            Bio = "Current user profile"
+        });
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+        var getResponse = await client.GetAsync("/api/UserProfiles/me");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var payload = await ReadResponseAsync<BaseResponse<UserProfileResponse>>(getResponse);
+        Assert.True(payload.Success);
+        Assert.Equal(userId, payload.Data!.UserId);
+        Assert.Equal("Self Profile", payload.Data!.DisplayName);
+    }
+
+    /// <summary>
     /// Creates a user for integration testing and returns the identifier.
     /// </summary>
     /// <param name="client">The HTTP client used to call the API.</param>

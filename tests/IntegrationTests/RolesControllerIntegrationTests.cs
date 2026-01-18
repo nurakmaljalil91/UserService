@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Domain.Common;
+using System.Linq;
 
 namespace IntegrationTests;
 
@@ -122,5 +123,78 @@ public class RolesControllerIntegrationTests : ApiTestBase
         var fetched = await ReadResponseAsync<BaseResponse<RoleResponse>>(getResponse);
         Assert.True(fetched.Success);
         Assert.Contains(createdPermission.Data!.Name, fetched.Data!.Permissions ?? Array.Empty<string>());
+    }
+
+    /// <summary>
+    /// Ensures the current user's roles can be retrieved via the me route.
+    /// </summary>
+    [Fact]
+    public async Task GetMyRoles_ReturnsCurrentUserRoles()
+    {
+        var authenticated = await CreateAuthenticatedClientWithUserAsync();
+        using var client = authenticated.Client;
+        var userId = authenticated.UserId;
+
+        var otherUserId = await CreateUserAsync(client);
+
+        var unique = Guid.NewGuid().ToString("N");
+        var roleResponse = await client.PostAsJsonAsync("/api/Roles", new
+        {
+            Name = $"role-{unique}",
+            Description = "Integration test role"
+        });
+        Assert.Equal(HttpStatusCode.Created, roleResponse.StatusCode);
+        var role = await ReadResponseAsync<BaseResponse<RoleResponse>>(roleResponse);
+
+        var otherRoleResponse = await client.PostAsJsonAsync("/api/Roles", new
+        {
+            Name = $"role-other-{unique}",
+            Description = "Integration test role other"
+        });
+        Assert.Equal(HttpStatusCode.Created, otherRoleResponse.StatusCode);
+        var otherRole = await ReadResponseAsync<BaseResponse<RoleResponse>>(otherRoleResponse);
+
+        var assignCurrent = await client.PostAsJsonAsync($"/api/Users/{userId}/assign-role", new
+        {
+            RoleId = role.Data!.Id
+        });
+        Assert.Equal(HttpStatusCode.OK, assignCurrent.StatusCode);
+
+        var assignOther = await client.PostAsJsonAsync($"/api/Users/{otherUserId}/assign-role", new
+        {
+            RoleId = otherRole.Data!.Id
+        });
+        Assert.Equal(HttpStatusCode.OK, assignOther.StatusCode);
+
+        var meResponse = await client.GetAsync("/api/Roles/me?page=1&total=10");
+        Assert.Equal(HttpStatusCode.OK, meResponse.StatusCode);
+
+        var payload = await ReadResponseAsync<BaseResponse<PaginatedResponse<RoleResponse>>>(meResponse);
+        Assert.True(payload.Success);
+        Assert.Single(payload.Data!.Items!);
+        Assert.Equal(role.Data!.Id, payload.Data.Items!.First().Id);
+    }
+
+    /// <summary>
+    /// Creates a user for integration testing and returns the identifier.
+    /// </summary>
+    /// <param name="client">The HTTP client used to call the API.</param>
+    /// <returns>The created user identifier.</returns>
+    private static async Task<Guid> CreateUserAsync(HttpClient client)
+    {
+        var unique = Guid.NewGuid().ToString("N");
+        var createUserResponse = await client.PostAsJsonAsync("/api/Users", new
+        {
+            Username = $"role-me-user-{unique}",
+            Email = $"role-me-{unique}@example.com",
+            Password = "User123!"
+        });
+        Assert.Equal(HttpStatusCode.Created, createUserResponse.StatusCode);
+
+        var created = await ReadResponseAsync<BaseResponse<UserResponse>>(createUserResponse);
+        Assert.True(created.Success);
+        Assert.NotNull(created.Data);
+
+        return created.Data!.Id;
     }
 }

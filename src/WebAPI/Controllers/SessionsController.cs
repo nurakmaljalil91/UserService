@@ -41,6 +41,17 @@ public sealed class SessionsController : ControllerBase
         => Ok(await _mediator.Send(query));
 
     /// <summary>
+    /// Retrieves a paginated list of the current user's sessions.
+    /// </summary>
+    /// <param name="query">The query parameters for filtering, sorting, and paginating sessions.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing a paginated list of <see cref="SessionDto"/> objects.
+    /// </returns>
+    [HttpGet("me")]
+    public async Task<ActionResult<BaseResponse<PaginatedEnumerable<SessionDto>>>> GetMySessions([FromQuery] GetMySessionsQuery query)
+        => Ok(await _mediator.Send(query));
+
+    /// <summary>
     /// Retrieves a session by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the session to retrieve.</param>

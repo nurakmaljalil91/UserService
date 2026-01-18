@@ -9,6 +9,11 @@ namespace Application.UnitTests.TestInfrastructure;
 public sealed class TestUser : IUser
 {
     /// <summary>
+    /// Gets or sets the user identifier value returned by the test user.
+    /// </summary>
+    public Guid? UserId { get; set; }
+
+    /// <summary>
     /// Gets or sets the username value returned by the test user.
     /// </summary>
     public string? Username { get; set; }

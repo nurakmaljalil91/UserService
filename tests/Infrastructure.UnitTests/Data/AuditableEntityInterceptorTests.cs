@@ -99,6 +99,11 @@ public class AuditableEntityInterceptorTests
             Username = username;
         }
 
+        /// <summary>
+        /// Gets the user identifier for the test user.
+        /// </summary>
+        public Guid? UserId { get; }
+
         public string? Username { get; }
 
         public List<string> GetRoles() => new();

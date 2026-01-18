@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using WebAPI.Services;
@@ -10,13 +11,13 @@ namespace WebAPI.UnitTests.Services;
 public class CurrentUserTests
 {
     [Fact]
-    public void Username_ReturnsNameIdentifierClaim()
+    public void Username_ReturnsPreferredUsernameClaim()
     {
         var httpContext = new DefaultHttpContext
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, "alice")
+                new Claim("preferred_username", "alice")
             }))
         };
 
@@ -33,8 +34,8 @@ public class CurrentUserTests
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.Role, "Admin"),
-                new Claim(ClaimTypes.Role, "Support")
+                new Claim("role", "Admin"),
+                new Claim("role", "Support")
             }))
         };
 
@@ -56,5 +57,26 @@ public class CurrentUserTests
         var roles = currentUser.GetRoles();
 
         Assert.Empty(roles);
+    }
+
+    /// <summary>
+    /// Ensures the user identifier is resolved from the subject claim.
+    /// </summary>
+    [Fact]
+    public void UserId_ReturnsSubjectClaim()
+    {
+        var userId = Guid.NewGuid();
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString())
+            }))
+        };
+
+        var accessor = new HttpContextAccessor { HttpContext = httpContext };
+        var currentUser = new CurrentUser(accessor);
+
+        Assert.Equal(userId, currentUser.UserId);
     }
 }

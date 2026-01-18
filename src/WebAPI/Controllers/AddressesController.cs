@@ -41,6 +41,17 @@ public sealed class AddressesController : ControllerBase
         => Ok(await _mediator.Send(query));
 
     /// <summary>
+    /// Retrieves a paginated list of the current user's addresses.
+    /// </summary>
+    /// <param name="query">The query parameters for filtering, sorting, and paginating addresses.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing a paginated list of <see cref="AddressDto"/> objects.
+    /// </returns>
+    [HttpGet("me")]
+    public async Task<ActionResult<BaseResponse<PaginatedEnumerable<AddressDto>>>> GetMyAddresses([FromQuery] GetMyAddressesQuery query)
+        => Ok(await _mediator.Send(query));
+
+    /// <summary>
     /// Retrieves an address by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the address to retrieve.</param>

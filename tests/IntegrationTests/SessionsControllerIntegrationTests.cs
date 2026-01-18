@@ -1,6 +1,7 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using Domain.Common;
+using System.Linq;
 
 namespace IntegrationTests;
 
@@ -81,6 +82,48 @@ public class SessionsControllerIntegrationTests : ApiTestBase
 
         var getDeletedResponse = await client.GetAsync($"/api/Sessions/{sessionId}");
         Assert.Equal(HttpStatusCode.NotFound, getDeletedResponse.StatusCode);
+    }
+
+    /// <summary>
+    /// Ensures the current user's sessions can be retrieved via the me route.
+    /// </summary>
+    [Fact]
+    public async Task GetMySessions_ReturnsCurrentUserSessions()
+    {
+        var authenticated = await CreateAuthenticatedClientWithUserAsync();
+        using var client = authenticated.Client;
+        var userId = authenticated.UserId;
+
+        var otherUserId = await CreateUserAsync(client);
+
+        var currentResponse = await client.PostAsJsonAsync("/api/Sessions", new
+        {
+            UserId = userId,
+            RefreshToken = "refresh-token-1",
+            ExpiresAt = "2026-01-01T00:00:00Z",
+            IpAddress = "127.0.0.1",
+            UserAgent = "IntegrationTest",
+            DeviceName = "TestDevice"
+        });
+        Assert.Equal(HttpStatusCode.Created, currentResponse.StatusCode);
+
+        var otherResponse = await client.PostAsJsonAsync("/api/Sessions", new
+        {
+            UserId = otherUserId,
+            RefreshToken = "refresh-token-2",
+            ExpiresAt = "2026-01-02T00:00:00Z",
+            IpAddress = "127.0.0.1",
+            UserAgent = "IntegrationTest",
+            DeviceName = "OtherDevice"
+        });
+        Assert.Equal(HttpStatusCode.Created, otherResponse.StatusCode);
+
+        var meResponse = await client.GetAsync("/api/Sessions/me?page=1&total=10");
+        Assert.Equal(HttpStatusCode.OK, meResponse.StatusCode);
+
+        var payload = await ReadResponseAsync<BaseResponse<PaginatedResponse<SessionResponse>>>(meResponse);
+        Assert.True(payload.Success);
+        Assert.Equal(userId, payload.Data.Items!.First().UserId);
     }
 
     /// <summary>

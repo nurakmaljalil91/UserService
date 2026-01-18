@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Headers;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Linq;
 using Application.Authentications.Models;
 using Domain.Common;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -57,6 +59,30 @@ public abstract class ApiTestBase
         var token = await GetTokenAsync(client);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return client;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="HttpClient"/> instance with a valid authentication token and returns the user id.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Task{TResult}"/> representing the asynchronous operation, with the client and user identifier.
+    /// </returns>
+    protected async Task<(HttpClient Client, Guid UserId)> CreateAuthenticatedClientWithUserAsync()
+    {
+        var client = CreateClient();
+        var token = await GetTokenAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+        var subject = jwt.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
+
+        if (!Guid.TryParse(subject, out var userId))
+        {
+            throw new InvalidOperationException("Token does not contain a valid subject claim.");
+        }
+
+        return (client, userId);
     }
 
     /// <summary>

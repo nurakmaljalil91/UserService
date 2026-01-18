@@ -41,6 +41,17 @@ public sealed class ConsentsController : ControllerBase
         => Ok(await _mediator.Send(query));
 
     /// <summary>
+    /// Retrieves a paginated list of the current user's consents.
+    /// </summary>
+    /// <param name="query">The query parameters for filtering, sorting, and paginating consents.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing a paginated list of <see cref="ConsentDto"/> objects.
+    /// </returns>
+    [HttpGet("me")]
+    public async Task<ActionResult<BaseResponse<PaginatedEnumerable<ConsentDto>>>> GetMyConsents([FromQuery] GetMyConsentsQuery query)
+        => Ok(await _mediator.Send(query));
+
+    /// <summary>
     /// Retrieves a consent by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the consent to retrieve.</param>

@@ -5,6 +5,7 @@ using System.Text;
 using Application.Common.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
+using NodaTime;
 
 namespace Infrastructure.Data;
 
@@ -194,6 +195,19 @@ public class ApplicationDbContextInitialiser
         var userRole = _context.Roles.FirstOrDefault(r => r.NormalizedName == "USER");
         var adminGroup = _context.Groups.FirstOrDefault(g => g.NormalizedName == "ADMINISTRATORS");
         var defaultGroup = _context.Groups.FirstOrDefault(g => g.NormalizedName == "DEFAULT");
+        var testersGroup = _context.Groups.FirstOrDefault(g => g.NormalizedName == "TESTERS");
+
+        if (testersGroup == null)
+        {
+            testersGroup = new Group
+            {
+                Name = "Testers",
+                NormalizedName = "TESTERS",
+                Description = "Quality assurance group"
+            };
+            _context.Groups.Add(testersGroup);
+            await _context.SaveChangesAsync();
+        }
 
         if (!_context.RolePermissions.Any() && adminRole != null && userRole != null)
         {
@@ -267,6 +281,148 @@ public class ApplicationDbContextInitialiser
                 {
                     UserId = standardUser.Id,
                     GroupId = defaultGroup.Id
+                });
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (testersGroup != null && standardUser != null && !_context.UserGroups.Any(ug => ug.UserId == standardUser.Id && ug.GroupId == testersGroup.Id))
+        {
+            _context.UserGroups.Add(new UserGroup
+            {
+                UserId = standardUser.Id,
+                GroupId = testersGroup.Id
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.UserProfiles.Any() && adminUser != null && standardUser != null)
+        {
+            _context.UserProfiles.AddRange(
+                new UserProfile
+                {
+                    UserId = adminUser.Id,
+                    DisplayName = "Admin Profile",
+                    FirstName = "System",
+                    LastName = "Admin",
+                    DateOfBirth = new LocalDate(1988, 5, 10),
+                    BirthPlace = "Kuala Lumpur",
+                    Bio = "Seeded admin profile",
+                    BloodType = "O+",
+                    Tag = "admin"
+                },
+                new UserProfile
+                {
+                    UserId = standardUser.Id,
+                    DisplayName = "User Profile",
+                    FirstName = "Standard",
+                    LastName = "User",
+                    DateOfBirth = new LocalDate(1995, 9, 21),
+                    BirthPlace = "Penang",
+                    Bio = "Seeded user profile",
+                    BloodType = "A+",
+                    Tag = "user"
+                });
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.Addresses.Any() && adminUser != null && standardUser != null)
+        {
+            _context.Addresses.AddRange(
+                new Address
+                {
+                    UserId = adminUser.Id,
+                    Label = "HQ",
+                    Type = "work",
+                    Line1 = "1 Admin Plaza",
+                    City = "Kuala Lumpur",
+                    State = "WP Kuala Lumpur",
+                    PostalCode = "50000",
+                    Country = "Malaysia",
+                    IsDefault = true
+                },
+                new Address
+                {
+                    UserId = standardUser.Id,
+                    Label = "Home",
+                    Type = "home",
+                    Line1 = "123 User Street",
+                    City = "George Town",
+                    State = "Penang",
+                    PostalCode = "10000",
+                    Country = "Malaysia",
+                    IsDefault = true
+                });
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.ContactMethods.Any() && adminUser != null && standardUser != null)
+        {
+            _context.ContactMethods.AddRange(
+                new ContactMethod
+                {
+                    UserId = adminUser.Id,
+                    Type = "email",
+                    Value = "admin@example.com",
+                    NormalizedValue = "ADMIN@EXAMPLE.COM",
+                    IsVerified = true,
+                    IsPrimary = true
+                },
+                new ContactMethod
+                {
+                    UserId = standardUser.Id,
+                    Type = "phone",
+                    Value = "+60123456789",
+                    NormalizedValue = "+60123456789",
+                    IsVerified = true,
+                    IsPrimary = true
+                });
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.Consents.Any() && adminUser != null && standardUser != null)
+        {
+            var grantedAt = Instant.FromUtc(2024, 1, 1, 0, 0);
+            _context.Consents.AddRange(
+                new Consent
+                {
+                    UserId = adminUser.Id,
+                    Type = "TermsOfService",
+                    IsGranted = true,
+                    GrantedAt = grantedAt,
+                    Version = "1.0",
+                    Source = "seed"
+                },
+                new Consent
+                {
+                    UserId = standardUser.Id,
+                    Type = "MarketingEmails",
+                    IsGranted = false,
+                    GrantedAt = grantedAt,
+                    Version = "1.0",
+                    Source = "seed"
+                });
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.UserPreferences.Any() && adminUser != null && standardUser != null)
+        {
+            _context.UserPreferences.AddRange(
+                new UserPreference
+                {
+                    UserId = adminUser.Id,
+                    Key = "theme",
+                    Value = "dark"
+                },
+                new UserPreference
+                {
+                    UserId = standardUser.Id,
+                    Key = "language",
+                    Value = "en"
                 });
 
             await _context.SaveChangesAsync();

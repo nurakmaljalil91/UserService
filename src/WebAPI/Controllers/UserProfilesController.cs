@@ -52,6 +52,16 @@ public sealed class UserProfilesController : ControllerBase
         => Ok(await _mediator.Send(new GetUserProfileByIdQuery { Id = id }));
 
     /// <summary>
+    /// Retrieves the profile for the currently authenticated user.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the <see cref="UserProfileDto"/> for the current user.
+    /// </returns>
+    [HttpGet("me")]
+    public async Task<ActionResult<BaseResponse<UserProfileDto>>> GetMyUserProfile()
+        => Ok(await _mediator.Send(new GetMyUserProfileQuery()));
+
+    /// <summary>
     /// Creates a new user profile with the specified details.
     /// </summary>
     /// <param name="command">The command containing the user profile details to create.</param>

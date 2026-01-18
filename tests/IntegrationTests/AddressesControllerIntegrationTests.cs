@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Domain.Common;
+using System.Linq;
 
 namespace IntegrationTests;
 
@@ -85,6 +86,55 @@ public class AddressesControllerIntegrationTests : ApiTestBase
 
         var getDeletedResponse = await client.GetAsync($"/api/Addresses/{addressId}");
         Assert.Equal(HttpStatusCode.NotFound, getDeletedResponse.StatusCode);
+    }
+
+    /// <summary>
+    /// Ensures the current user's addresses can be retrieved via the me route.
+    /// </summary>
+    [Fact]
+    public async Task GetMyAddresses_ReturnsCurrentUserAddresses()
+    {
+        var authenticated = await CreateAuthenticatedClientWithUserAsync();
+        using var client = authenticated.Client;
+        var userId = authenticated.UserId;
+
+        var otherUserId = await CreateUserAsync(client);
+
+        var currentResponse = await client.PostAsJsonAsync("/api/Addresses", new
+        {
+            UserId = userId,
+            Label = "Home",
+            Type = "home",
+            Line1 = "123 Main St",
+            City = "Metro",
+            State = "State",
+            PostalCode = "12345",
+            Country = "Country",
+            IsDefault = true
+        });
+        Assert.Equal(HttpStatusCode.Created, currentResponse.StatusCode);
+
+        var otherResponse = await client.PostAsJsonAsync("/api/Addresses", new
+        {
+            UserId = otherUserId,
+            Label = "Office",
+            Type = "work",
+            Line1 = "456 Work Rd",
+            City = "Metro",
+            State = "State",
+            PostalCode = "67890",
+            Country = "Country",
+            IsDefault = true
+        });
+        Assert.Equal(HttpStatusCode.Created, otherResponse.StatusCode);
+
+        var meResponse = await client.GetAsync("/api/Addresses/me?page=1&total=10");
+        Assert.Equal(HttpStatusCode.OK, meResponse.StatusCode);
+
+        var payload = await ReadResponseAsync<BaseResponse<PaginatedResponse<AddressResponse>>>(meResponse);
+        Assert.True(payload.Success);
+        Assert.Single(payload.Data!.Items!);
+        Assert.Equal(userId, payload.Data.Items!.First().UserId);
     }
 
     /// <summary>

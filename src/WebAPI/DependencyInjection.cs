@@ -4,7 +4,7 @@ using NSwag.Generation.Processors.Security;
 using WebAPI.Middlewares;
 using WebAPI.Services;
 
-using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -94,6 +94,7 @@ public static class DependencyInjection
                 var audience = jwtSection["Audience"];
                 var key = jwtSection["Key"];
 
+                options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -103,8 +104,8 @@ public static class DependencyInjection
                     ValidIssuer = issuer,
                     ValidAudience = audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key ?? string.Empty)),
-                    NameClaimType = ClaimTypes.NameIdentifier,
-                    RoleClaimType = ClaimTypes.Role
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = "role"
                 };
             });
 
