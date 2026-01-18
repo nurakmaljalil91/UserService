@@ -389,6 +389,47 @@ public abstract class ApiTestBase
     }
 
     /// <summary>
+    /// Represents a response containing details of the current user session.
+    /// </summary>
+    protected sealed class UserSessionResponse
+    {
+        /// <summary>
+        /// Gets or sets the user details.
+        /// </summary>
+        public UserResponse? User { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user profile details.
+        /// </summary>
+        public UserProfileResponse? Profile { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user preference entries.
+        /// </summary>
+        public IReadOnlyCollection<UserPreferenceResponse>? Preferences { get; set; }
+
+        /// <summary>
+        /// Gets or sets the role names assigned to the user.
+        /// </summary>
+        public IReadOnlyCollection<string>? Roles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the permission names available to the user.
+        /// </summary>
+        public IReadOnlyCollection<string>? Permissions { get; set; }
+
+        /// <summary>
+        /// Gets or sets the group names the user belongs to.
+        /// </summary>
+        public IReadOnlyCollection<string>? Groups { get; set; }
+
+        /// <summary>
+        /// Gets or sets the roles grouped by group name.
+        /// </summary>
+        public IReadOnlyDictionary<string, IReadOnlyCollection<string>>? GroupRoles { get; set; }
+    }
+
+    /// <summary>
     /// Represents a response containing details of a session.
     /// </summary>
     protected sealed class SessionResponse

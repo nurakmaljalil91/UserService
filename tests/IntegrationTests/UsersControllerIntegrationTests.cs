@@ -128,4 +128,22 @@ public class UsersControllerIntegrationTests : ApiTestBase
         Assert.True(fetched.Success);
         Assert.Contains(createdRole.Data!.Name, fetched.Data!.Roles ?? Array.Empty<string>());
     }
+
+    /// <summary>
+    /// Ensures the current user can be retrieved via the me route.
+    /// </summary>
+    [Fact]
+    public async Task GetMyUser_ReturnsCurrentUser()
+    {
+        var authenticated = await CreateAuthenticatedClientWithUserAsync();
+        using var client = authenticated.Client;
+        var userId = authenticated.UserId;
+
+        var response = await client.GetAsync("/api/Users/me");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await ReadResponseAsync<BaseResponse<UserResponse>>(response);
+        Assert.True(payload.Success);
+        Assert.Equal(userId, payload.Data!.Id);
+    }
 }

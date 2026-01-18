@@ -416,7 +416,7 @@ public class ApplicationDbContextInitialiser
                 {
                     UserId = adminUser.Id,
                     Key = "theme",
-                    Value = "dark"
+                    Value = "light"
                 },
                 new UserPreference
                 {

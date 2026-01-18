@@ -40,6 +40,16 @@ public sealed class UsersController : ControllerBase
         => Ok(await _mediator.Send(query));
 
     /// <summary>
+    /// Retrieves the current authenticated user.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the <see cref="UserDto"/> for the current user.
+    /// </returns>
+    [HttpGet("me")]
+    public async Task<ActionResult<BaseResponse<UserDto>>> GetMyUser()
+        => Ok(await _mediator.Send(new GetMyUserQuery()));
+
+    /// <summary>
     /// Retrieves a user by their unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the user to retrieve.</param>

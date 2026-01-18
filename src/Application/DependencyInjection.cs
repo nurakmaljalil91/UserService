@@ -36,6 +36,8 @@ using Application.UserProfiles.Queries;
 using Application.UserPreferences.Commands;
 using Application.UserPreferences.Models;
 using Application.UserPreferences.Queries;
+using Application.UserSessions.Models;
+using Application.UserSessions.Queries;
 using Application.Sessions.Commands;
 using Application.Sessions.Models;
 using Application.Sessions.Queries;
@@ -69,6 +71,8 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<UpdateUserCommand, BaseResponse<UserDto>>, UpdateUserCommandHandler>();
         services.AddScoped<IRequestHandler<SoftDeleteUserCommand, BaseResponse<string>>, SoftDeleteUserCommandHandler>();
         services.AddScoped<IRequestHandler<GetUserByIdQuery, BaseResponse<UserDto>>, GetUserByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<GetMyUserQuery, BaseResponse<UserDto>>, GetMyUserQueryHandler>();
+        services.AddScoped<IRequestHandler<GetUserSessionQuery, BaseResponse<UserSessionDto>>, GetUserSessionQueryHandler>();
         services.AddScoped<IRequestHandler<GetUsersQuery, BaseResponse<PaginatedEnumerable<UserDto>>>, GetUsersQueryHandler>();
         services.AddScoped<IRequestHandler<GetAddressesQuery, BaseResponse<PaginatedEnumerable<AddressDto>>>,
             GetAddressesQueryHandler>();
