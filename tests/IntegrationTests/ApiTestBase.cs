@@ -217,6 +217,41 @@ public abstract class ApiTestBase
         public IReadOnlyCollection<string>? Permissions { get; set; }
     }
 
+#nullable enable
+
+    /// <summary>
+    /// Represents a response containing details of a group.
+    /// </summary>
+    protected sealed class GroupResponse
+    {
+        /// <summary>
+        /// Gets or sets the unique identifier of the group.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the group name.
+        /// </summary>
+        public string? Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the normalized group name.
+        /// </summary>
+        public string? NormalizedName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the group description.
+        /// </summary>
+        public string? Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets the group role names.
+        /// </summary>
+        public IReadOnlyCollection<string>? Roles { get; set; }
+    }
+
+#nullable restore
+
     /// <summary>
     /// Represents a response containing details of a permission.
     /// </summary>

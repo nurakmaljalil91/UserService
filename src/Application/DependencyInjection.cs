@@ -9,6 +9,9 @@ using Application.Common.Models;
 using Application.ExternalLinks.Commands;
 using Application.ExternalLinks.Models;
 using Application.ExternalLinks.Queries;
+using Application.Groups.Commands;
+using Application.Groups.Models;
+using Application.Groups.Queries;
 using Application.Permissions.Commands;
 using Application.Permissions.Models;
 using Application.Permissions.Queries;
@@ -59,6 +62,11 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<CreatePermissionCommand, BaseResponse<PermissionDto>>, CreatePermissionCommandHandler>();
         services.AddScoped<IRequestHandler<UpdatePermissionCommand, BaseResponse<PermissionDto>>, UpdatePermissionCommandHandler>();
         services.AddScoped<IRequestHandler<DeletePermissionCommand, BaseResponse<string>>, DeletePermissionCommandHandler>();
+        services.AddScoped<IRequestHandler<GetGroupsQuery, BaseResponse<PaginatedEnumerable<GroupDto>>>, GetGroupsQueryHandler>();
+        services.AddScoped<IRequestHandler<GetGroupByIdQuery, BaseResponse<GroupDto>>, GetGroupByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreateGroupCommand, BaseResponse<GroupDto>>, CreateGroupCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateGroupCommand, BaseResponse<GroupDto>>, UpdateGroupCommandHandler>();
+        services.AddScoped<IRequestHandler<DeleteGroupCommand, BaseResponse<string>>, DeleteGroupCommandHandler>();
         services.AddScoped<IRequestHandler<StartExternalLinkCommand, BaseResponse<ExternalLinkStartResponse>>,
             StartExternalLinkCommandHandler>();
         services.AddScoped<IRequestHandler<CompleteExternalLinkCommand, BaseResponse<ExternalLinkDto>>,
