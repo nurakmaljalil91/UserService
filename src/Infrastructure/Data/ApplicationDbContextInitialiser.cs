@@ -70,25 +70,6 @@ public class ApplicationDbContextInitialiser
     /// </summary>
     public async Task TrySeedAsync()
     {
-        // Default data
-        // Seed, if necessary
-        if (!_context.TodoLists.Any())
-        {
-            _context.TodoLists.Add(new TodoList
-            {
-                Title = "Todo List",
-                Items =
-                {
-                    new TodoItem { Title = "Make a todo list" },
-                    new TodoItem { Title = "Check off the first item" },
-                    new TodoItem { Title = "Realise you've already done two things on the list!"},
-                    new TodoItem { Title = "Reward yourself with a nice, long nap" },
-                }
-            });
-
-            await _context.SaveChangesAsync();
-        }
-
         if (!_context.Users.Any())
         {
             var admin = new User
@@ -104,7 +85,7 @@ public class ApplicationDbContextInitialiser
                 IsLocked = false,
                 IsDeleted = false
             };
-            admin.PasswordHash = _passwordHasher.HashPassword(admin, "Admin123!");
+            admin.PasswordHash = _passwordHasher.HashPassword(admin, "Admin123#");
 
             var user = new User
             {
@@ -119,7 +100,7 @@ public class ApplicationDbContextInitialiser
                 IsLocked = false,
                 IsDeleted = false
             };
-            user.PasswordHash = _passwordHasher.HashPassword(user, "User123!");
+            user.PasswordHash = _passwordHasher.HashPassword(user, "User123#");
 
             _context.Users.AddRange(admin, user);
 

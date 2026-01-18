@@ -22,68 +22,6 @@ Accept: application/json
 
 ###
 
-# Todos Items - Get all (Admin only)
-GET {{WebAPI_HostAddress}}/api/todoItems?page=1&total=10&sortBy=id&descending=true
-Accept: application/json
-Authorization: Bearer {{bearerToken}}
-
-###
-
-# Create Todos Item
-POST {{WebAPI_HostAddress}}/api/todoItems
-Content-Type: application/json
-Authorization: Bearer {{bearerToken}}
-{
-  "listId": 1,
-  "title": "New Todo Item"
-}
-
-###
-
-# Update Todos Item
-PATCH {{WebAPI_HostAddress}}/api/todoItems
-Content-Type: application/json
-Authorization: Bearer {{bearerToken}}
-{
-  "id": 2,
-  "title": "Updated Todo Item"
-}
-
-###
-
-# Delete Todos Item
-DELETE {{WebAPI_HostAddress}}/api/todoItems/1
-Authorization: Bearer {{bearerToken}}
-
-###
-
-GET {{WebAPI_HostAddress}}/api/todolists?page=1&total=10&sortBy=id&descending=false
-
-###
-
-POST {{WebAPI_HostAddress}}/api/todolists
-Content-Type: application/json
-{
- "title": "Second to do list"
-}
-
-###
-
-PATCH {{WebAPI_HostAddress}}/api/todolists
-Content-Type: application/json
-
-{
-  "id": 2,
-  "title": "Updated Todo List"
-}
-
-###
-
-@id=2
-DELETE {{WebAPI_HostAddress}}/api/TodoLists/{{id}}
-
-###
-
 POST {{WebAPI_HostAddress}}/api/auth/login
 Content-Type: application/json
 

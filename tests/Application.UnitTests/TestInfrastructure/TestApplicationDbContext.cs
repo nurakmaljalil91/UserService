@@ -1,4 +1,4 @@
-using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces;
 using Domain.Entities;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -18,16 +18,6 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
         : base(options)
     {
     }
-
-    /// <summary>
-    /// Gets the <see cref="DbSet{TodoList}"/> representing the collection of task lists.
-    /// </summary>
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
-
-    /// <summary>
-    /// Gets the <see cref="DbSet{TodoItem}"/> representing the collection of task items.
-    /// </summary>
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
     public DbSet<User> Users => Set<User>();
 
@@ -75,22 +65,6 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<TodoList>(builder =>
-        {
-            builder.HasKey(x => x.Id);
-            builder.OwnsOne(x => x.Colour);
-            builder.Navigation(x => x.Items)
-                .UsePropertyAccessMode(PropertyAccessMode.Field);
-        });
-
-        modelBuilder.Entity<TodoItem>(builder =>
-        {
-            builder.HasKey(x => x.Id);
-            builder.HasOne(x => x.List)
-                .WithMany(x => x.Items)
-                .HasForeignKey(x => x.ListId);
-        });
-
         modelBuilder.Entity<User>(builder => builder.HasKey(x => x.Id));
         modelBuilder.Entity<UserProfile>(builder => builder.HasKey(x => x.Id));
         modelBuilder.Entity<Session>(builder => builder.HasKey(x => x.Id));

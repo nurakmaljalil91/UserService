@@ -1,4 +1,4 @@
-using Infrastructure.Data;
+﻿using Infrastructure.Data;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -26,10 +26,5 @@ public class ApplicationDbContextInitialiserTests
         var initialiser = new ApplicationDbContextInitialiser(logger, context, passwordHasher);
 
         await initialiser.TrySeedAsync();
-
-        var todoList = await context.TodoLists.Include(list => list.Items).SingleAsync();
-
-        Assert.Equal("Todo List", todoList.Title);
-        Assert.Equal(4, todoList.Items.Count);
     }
 }
