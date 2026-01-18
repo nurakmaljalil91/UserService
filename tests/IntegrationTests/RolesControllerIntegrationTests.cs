@@ -74,4 +74,53 @@ public class RolesControllerIntegrationTests : ApiTestBase
         var getDeletedResponse = await client.GetAsync($"/api/Roles/{roleId}");
         Assert.Equal(HttpStatusCode.NotFound, getDeletedResponse.StatusCode);
     }
+
+    /// <summary>
+    /// Ensures permissions can be assigned to a role.
+    /// </summary>
+    [Fact]
+    public async Task Roles_AssignPermission_Works()
+    {
+        using var client = await CreateAuthenticatedClientAsync();
+
+        var unique = Guid.NewGuid().ToString("N");
+        var permissionResponse = await client.PostAsJsonAsync("/api/Permissions", new
+        {
+            Name = $"perm-{unique}",
+            Description = "Integration test permission"
+        });
+        Assert.Equal(HttpStatusCode.Created, permissionResponse.StatusCode);
+
+        var createdPermission = await ReadResponseAsync<BaseResponse<PermissionResponse>>(permissionResponse);
+        Assert.True(createdPermission.Success);
+        var permissionId = createdPermission.Data!.Id;
+
+        var roleResponse = await client.PostAsJsonAsync("/api/Roles", new
+        {
+            Name = $"role-{unique}",
+            Description = "Integration test role"
+        });
+        Assert.Equal(HttpStatusCode.Created, roleResponse.StatusCode);
+
+        var createdRole = await ReadResponseAsync<BaseResponse<RoleResponse>>(roleResponse);
+        Assert.True(createdRole.Success);
+        var roleId = createdRole.Data!.Id;
+
+        var assignResponse = await client.PostAsJsonAsync($"/api/Roles/{roleId}/assign-permission", new
+        {
+            PermissionId = permissionId
+        });
+        Assert.Equal(HttpStatusCode.OK, assignResponse.StatusCode);
+
+        var assigned = await ReadResponseAsync<BaseResponse<RoleResponse>>(assignResponse);
+        Assert.True(assigned.Success);
+        Assert.Contains(createdPermission.Data!.Name, assigned.Data!.Permissions ?? Array.Empty<string>());
+
+        var getResponse = await client.GetAsync($"/api/Roles/{roleId}");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var fetched = await ReadResponseAsync<BaseResponse<RoleResponse>>(getResponse);
+        Assert.True(fetched.Success);
+        Assert.Contains(createdPermission.Data!.Name, fetched.Data!.Permissions ?? Array.Empty<string>());
+    }
 }

@@ -78,4 +78,54 @@ public class UsersControllerIntegrationTests : ApiTestBase
         var getDeletedResponse = await client.GetAsync($"/api/Users/{userId}");
         Assert.Equal(HttpStatusCode.NotFound, getDeletedResponse.StatusCode);
     }
+
+    /// <summary>
+    /// Ensures roles can be assigned to a user.
+    /// </summary>
+    [Fact]
+    public async Task Users_AssignRole_Works()
+    {
+        using var client = await CreateAuthenticatedClientAsync();
+
+        var unique = Guid.NewGuid().ToString("N");
+        var roleResponse = await client.PostAsJsonAsync("/api/Roles", new
+        {
+            Name = $"role-{unique}",
+            Description = "Integration test role"
+        });
+        Assert.Equal(HttpStatusCode.Created, roleResponse.StatusCode);
+
+        var createdRole = await ReadResponseAsync<BaseResponse<RoleResponse>>(roleResponse);
+        Assert.True(createdRole.Success);
+        var roleId = createdRole.Data!.Id;
+
+        var userResponse = await client.PostAsJsonAsync("/api/Users", new
+        {
+            Username = $"user-{unique}",
+            Email = $"user-{unique}@example.com",
+            Password = "User123!"
+        });
+        Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
+
+        var createdUser = await ReadResponseAsync<BaseResponse<UserResponse>>(userResponse);
+        Assert.True(createdUser.Success);
+        var userId = createdUser.Data!.Id;
+
+        var assignResponse = await client.PostAsJsonAsync($"/api/Users/{userId}/assign-role", new
+        {
+            RoleId = roleId
+        });
+        Assert.Equal(HttpStatusCode.OK, assignResponse.StatusCode);
+
+        var assigned = await ReadResponseAsync<BaseResponse<UserResponse>>(assignResponse);
+        Assert.True(assigned.Success);
+        Assert.Contains(createdRole.Data!.Name, assigned.Data!.Roles ?? Array.Empty<string>());
+
+        var getResponse = await client.GetAsync($"/api/Users/{userId}");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var fetched = await ReadResponseAsync<BaseResponse<UserResponse>>(getResponse);
+        Assert.True(fetched.Success);
+        Assert.Contains(createdRole.Data!.Name, fetched.Data!.Roles ?? Array.Empty<string>());
+    }
 }

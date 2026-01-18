@@ -82,6 +82,24 @@ public sealed class RolesController : ControllerBase
     }
 
     /// <summary>
+    /// Assigns a permission to a role.
+    /// </summary>
+    /// <param name="id">The unique identifier of the role to assign the permission to.</param>
+    /// <param name="command">The command containing the permission assignment details.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the updated <see cref="RoleDto"/> object.
+    /// </returns>
+    [HttpPost("{id:guid}/assign-permission")]
+    public async Task<ActionResult<BaseResponse<RoleDto>>> AssignPermissionToRole(
+        Guid id,
+        [FromBody] AssignPermissionToRoleCommand command)
+    {
+        command.RoleId = id;
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Deletes a role by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the role to delete.</param>

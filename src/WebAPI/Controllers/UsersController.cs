@@ -65,6 +65,22 @@ public sealed class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// Assigns a role to a user.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to assign the role to.</param>
+    /// <param name="command">The command containing the role assignment details.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the updated <see cref="UserDto"/> object.
+    /// </returns>
+    [HttpPost("{id:guid}/assign-role")]
+    public async Task<ActionResult<BaseResponse<UserDto>>> AssignRoleToUser(Guid id, [FromBody] AssignRoleToUserCommand command)
+    {
+        command.UserId = id;
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Updates an existing user with the specified details.
     /// </summary>
     /// <param name="id">The unique identifier of the user to update.</param>

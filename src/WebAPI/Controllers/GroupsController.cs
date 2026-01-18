@@ -66,6 +66,38 @@ public sealed class GroupsController : ControllerBase
     }
 
     /// <summary>
+    /// Assigns a role to a group.
+    /// </summary>
+    /// <param name="id">The unique identifier of the group to assign the role to.</param>
+    /// <param name="command">The command containing the role assignment details.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the updated <see cref="GroupDto"/> object.
+    /// </returns>
+    [HttpPost("{id:guid}/assign-role")]
+    public async Task<ActionResult<BaseResponse<GroupDto>>> AssignRoleToGroup(Guid id, [FromBody] AssignRoleToGroupCommand command)
+    {
+        command.GroupId = id;
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Assigns a user to a group.
+    /// </summary>
+    /// <param name="id">The unique identifier of the group to assign the user to.</param>
+    /// <param name="command">The command containing the user assignment details.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the updated <see cref="GroupDto"/> object.
+    /// </returns>
+    [HttpPost("{id:guid}/assign-user")]
+    public async Task<ActionResult<BaseResponse<GroupDto>>> AssignUserToGroup(Guid id, [FromBody] AssignUserToGroupCommand command)
+    {
+        command.GroupId = id;
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Updates an existing group with the specified details.
     /// </summary>
     /// <param name="id">The unique identifier of the group to update.</param>

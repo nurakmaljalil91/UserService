@@ -65,6 +65,7 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<RegisterCommand, BaseResponse<string>>, RegisterCommandHandler>();
         services.AddScoped<IRequestHandler<ResetPasswordCommand, BaseResponse<string>>, ResetPasswordCommandHandler>();
         services.AddScoped<IRequestHandler<CreateUserCommand, BaseResponse<UserDto>>, CreateUserCommandHandler>();
+        services.AddScoped<IRequestHandler<AssignRoleToUserCommand, BaseResponse<UserDto>>, AssignRoleToUserCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateUserCommand, BaseResponse<UserDto>>, UpdateUserCommandHandler>();
         services.AddScoped<IRequestHandler<SoftDeleteUserCommand, BaseResponse<string>>, SoftDeleteUserCommandHandler>();
         services.AddScoped<IRequestHandler<GetUserByIdQuery, BaseResponse<UserDto>>, GetUserByIdQueryHandler>();
@@ -110,6 +111,7 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<CreateRoleCommand, BaseResponse<RoleDto>>, CreateRoleCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateRoleCommand, BaseResponse<RoleDto>>, UpdateRoleCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteRoleCommand, BaseResponse<string>>, DeleteRoleCommandHandler>();
+        services.AddScoped<IRequestHandler<AssignPermissionToRoleCommand, BaseResponse<RoleDto>>, AssignPermissionToRoleCommandHandler>();
         services.AddScoped<IRequestHandler<GetPermissionsQuery, BaseResponse<PaginatedEnumerable<PermissionDto>>>,
             GetPermissionsQueryHandler>();
         services.AddScoped<IRequestHandler<GetPermissionByIdQuery, BaseResponse<PermissionDto>>, GetPermissionByIdQueryHandler>();
@@ -119,6 +121,8 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<GetGroupsQuery, BaseResponse<PaginatedEnumerable<GroupDto>>>, GetGroupsQueryHandler>();
         services.AddScoped<IRequestHandler<GetGroupByIdQuery, BaseResponse<GroupDto>>, GetGroupByIdQueryHandler>();
         services.AddScoped<IRequestHandler<CreateGroupCommand, BaseResponse<GroupDto>>, CreateGroupCommandHandler>();
+        services.AddScoped<IRequestHandler<AssignRoleToGroupCommand, BaseResponse<GroupDto>>, AssignRoleToGroupCommandHandler>();
+        services.AddScoped<IRequestHandler<AssignUserToGroupCommand, BaseResponse<GroupDto>>, AssignUserToGroupCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateGroupCommand, BaseResponse<GroupDto>>, UpdateGroupCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteGroupCommand, BaseResponse<string>>, DeleteGroupCommandHandler>();
         services.AddScoped<IRequestHandler<StartExternalLinkCommand, BaseResponse<ExternalLinkStartResponse>>,
