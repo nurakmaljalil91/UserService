@@ -33,6 +33,7 @@ public class ApiFactory : WebApplicationFactory<Program>
                 ["Jwt:Audience"] = "IntegrationTests",
                 ["Jwt:Key"] = "integration-tests-super-secret-key-1234567890",
                 ["Jwt:ExpiryMinutes"] = "60",
+                ["BuildVersion"] = "integration-test-build",
                 ["ExternalLink:StateSigningKey"] = "integration-tests-external-link-key",
                 ["ExternalLink:StateExpiryMinutes"] = "15"
             };

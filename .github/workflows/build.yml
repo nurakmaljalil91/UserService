@@ -1,0 +1,146 @@
+name: build
+
+on:
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  build-test-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Resolve repository paths
+        id: paths
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          solution_file="$(find . -maxdepth 1 -name '*.slnx' -print -quit)"
+
+          if [ -z "$solution_file" ]; then
+            echo "No .slnx file found in repository root." >&2
+            exit 1
+          fi
+
+          webapi_project="src/WebAPI/WebAPI.csproj"
+          production_settings="src/WebAPI/appsettings.Production.json"
+
+          if [ ! -f "$webapi_project" ]; then
+            echo "Expected WebAPI project not found at $webapi_project." >&2
+            exit 1
+          fi
+
+          if [ ! -f "$production_settings" ]; then
+            echo "Expected production settings file not found at $production_settings." >&2
+            exit 1
+          fi
+
+          echo "solution_file=$solution_file" >> "$GITHUB_OUTPUT"
+          echo "webapi_project=$webapi_project" >> "$GITHUB_OUTPUT"
+          echo "production_settings=$production_settings" >> "$GITHUB_OUTPUT"
+
+      - name: Restore
+        run: dotnet restore "${{ steps.paths.outputs.solution_file }}"
+
+      - name: Build
+        run: dotnet build "${{ steps.paths.outputs.solution_file }}" --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test "${{ steps.paths.outputs.solution_file }}" --configuration Release --no-build
+
+      - name: Generate BuildVersion
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_version="build-$(date -u +'%Y.%m.%d').${GITHUB_RUN_NUMBER}"
+          echo "build_version=$build_version" >> "$GITHUB_OUTPUT"
+          echo "BUILD_VERSION=$build_version" >> "$GITHUB_ENV"
+
+      - name: Persist BUILD_VERSION repository variable
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        env:
+          GH_TOKEN: ${{ secrets.REPO_VARIABLES_TOKEN != '' && secrets.REPO_VARIABLES_TOKEN || github.token }}
+          BUILD_VERSION: ${{ steps.version.outputs.build_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          api_root="repos/${GITHUB_REPOSITORY}/actions/variables"
+
+          if gh api \
+            --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${api_root}/BUILD_VERSION" > /dev/null 2>&1; then
+            gh api \
+              --method PATCH \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${api_root}/BUILD_VERSION" \
+              -f name=BUILD_VERSION \
+              -f value="$BUILD_VERSION"
+          else
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${api_root}" \
+              -f name=BUILD_VERSION \
+              -f value="$BUILD_VERSION"
+          fi
+
+      - name: Inject BuildVersion into production settings
+        env:
+          BUILD_VERSION: ${{ steps.version.outputs.build_version }}
+          PRODUCTION_SETTINGS: ${{ steps.paths.outputs.production_settings }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          import sys
+
+          settings_path = Path(os.environ["PRODUCTION_SETTINGS"])
+          placeholder = "#{BUILD_VERSION}#"
+          build_version = os.environ["BUILD_VERSION"]
+          content = settings_path.read_text(encoding="utf-8")
+
+          if placeholder not in content:
+              sys.exit(f"BuildVersion placeholder '{placeholder}' was not found in {settings_path}.")
+
+          settings_path.write_text(content.replace(placeholder, build_version), encoding="utf-8")
+          PY
+
+      - name: Build Docker image
+        env:
+          BUILD_VERSION: ${{ steps.version.outputs.build_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          image_repository="$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          docker build \
+            --file Dockerfile \
+            --build-arg BUILD_CONFIGURATION=Release \
+            --tag "${image_repository}:${BUILD_VERSION}" \
+            .
