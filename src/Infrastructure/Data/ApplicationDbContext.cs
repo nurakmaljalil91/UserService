@@ -10,7 +10,7 @@ namespace Infrastructure.Data;
 
 /// <summary>
 /// Represents the Entity Framework database context for the application,
-/// providing access to <see cref="TodoList"/> and <see cref="TodoItem"/> entities.
+/// providing access to user, role, group, session, and related identity entities.
 /// </summary>
 public class ApplicationDbContext : DbContext, IApplicationDbContext
 {

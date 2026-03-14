@@ -198,6 +198,7 @@ public sealed class GoogleOAuthService : IGoogleOAuthService
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The deserialized payload.</returns>
     private static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response, CancellationToken cancellationToken)
+        where T : class
     {
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         var payload = await JsonSerializer.DeserializeAsync<T>(stream, new JsonSerializerOptions

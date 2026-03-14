@@ -56,6 +56,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
     /// <param name="dateTime">The date and time service.</param>
     /// <param name="clockService">The clock service for NodaTime instants.</param>
     /// <param name="configuration">The application configuration.</param>
+    /// <param name="refreshTokenHasher">The refresh token hashing service.</param>
     public LoginCommandHandler(
         IApplicationDbContext context,
         IPasswordHasherService passwordHasher,

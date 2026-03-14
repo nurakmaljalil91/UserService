@@ -84,27 +84,42 @@ jobs:
           set -euo pipefail
 
           api_root="repos/${GITHUB_REPOSITORY}/actions/variables"
+          api_headers=(
+            -H "Accept: application/vnd.github+json"
+            -H "X-GitHub-Api-Version: 2022-11-28"
+          )
 
           if gh api \
             --method GET \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "${api_headers[@]}" \
             "${api_root}/BUILD_VERSION" > /dev/null 2>&1; then
-            gh api \
-              --method PATCH \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "${api_root}/BUILD_VERSION" \
-              -f name=BUILD_VERSION \
-              -f value="$BUILD_VERSION"
+            api_method="PATCH"
+            api_endpoint="${api_root}/BUILD_VERSION"
           else
+            api_method="POST"
+            api_endpoint="${api_root}"
+          fi
+
+          set +e
+          api_response="$(
             gh api \
-              --method POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "${api_root}" \
+              --method "$api_method" \
+              "${api_headers[@]}" \
+              "${api_endpoint}" \
               -f name=BUILD_VERSION \
-              -f value="$BUILD_VERSION"
+              -f value="$BUILD_VERSION" 2>&1
+          )"
+          api_status=$?
+          set -e
+
+          if [ "$api_status" -ne 0 ]; then
+            if printf '%s' "$api_response" | grep -qi "Resource not accessible by integration"; then
+              echo "::warning::Skipping BUILD_VERSION repository variable update because the current token cannot manage Actions variables. Configure REPO_VARIABLES_TOKEN with repository variables write access to persist it."
+              exit 0
+            fi
+
+            printf '%s\n' "$api_response" >&2
+            exit "$api_status"
           fi
 
       - name: Inject BuildVersion into production settings

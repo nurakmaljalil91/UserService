@@ -1,7 +1,8 @@
-﻿using Infrastructure.Data;
+using Infrastructure.Data;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Xunit;
 
 namespace Infrastructure.UnitTests.Data;
 
@@ -26,5 +27,10 @@ public class ApplicationDbContextInitialiserTests
         var initialiser = new ApplicationDbContextInitialiser(logger, context, passwordHasher);
 
         await initialiser.TrySeedAsync();
+
+        Assert.Equal(2, await context.Users.CountAsync());
+        Assert.Equal(2, await context.Roles.CountAsync());
+        Assert.Equal(3, await context.Groups.CountAsync());
+        Assert.NotEmpty(await context.Permissions.ToListAsync());
     }
 }
