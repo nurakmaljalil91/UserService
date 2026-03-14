@@ -9,6 +9,8 @@ namespace IntegrationTests.TestInfrastructure;
 /// </summary>
 public sealed class TestGoogleOAuthService : IGoogleOAuthService
 {
+    private const string CalendarScope = "https://www.googleapis.com/auth/calendar";
+
     /// <inheritdoc />
     public Task<string> BuildAuthorizationUrlAsync(string state, CancellationToken cancellationToken)
     {
@@ -20,10 +22,10 @@ public sealed class TestGoogleOAuthService : IGoogleOAuthService
     {
         return Task.FromResult(new ExternalOAuthToken
         {
-            AccessToken = "integration-access-token",
-            RefreshToken = "integration-refresh-token",
+            AccessToken = $"integration-access-token-{code}",
+            RefreshToken = $"integration-refresh-token-{code}",
             ExpiresInSeconds = 3600,
-            Scope = "https://www.googleapis.com/auth/calendar",
+            Scope = CalendarScope,
             TokenType = "Bearer"
         });
     }
@@ -33,10 +35,10 @@ public sealed class TestGoogleOAuthService : IGoogleOAuthService
     {
         return Task.FromResult(new ExternalOAuthToken
         {
-            AccessToken = "integration-access-token-refreshed",
+            AccessToken = $"integration-access-token-refreshed-{refreshToken}",
             RefreshToken = refreshToken,
             ExpiresInSeconds = 3600,
-            Scope = "https://www.googleapis.com/auth/calendar",
+            Scope = CalendarScope,
             TokenType = "Bearer"
         });
     }
@@ -44,11 +46,13 @@ public sealed class TestGoogleOAuthService : IGoogleOAuthService
     /// <inheritdoc />
     public Task<ExternalOAuthUserProfile> GetUserProfileAsync(string accessToken, CancellationToken cancellationToken)
     {
+        var identifier = accessToken["integration-access-token-".Length..];
+
         return Task.FromResult(new ExternalOAuthUserProfile
         {
-            SubjectId = "integration-subject",
-            Email = "integration@example.com",
-            DisplayName = "Integration User"
+            SubjectId = $"integration-subject-{identifier}",
+            Email = $"{identifier}@example.com",
+            DisplayName = $"Integration User {identifier}"
         });
     }
 }

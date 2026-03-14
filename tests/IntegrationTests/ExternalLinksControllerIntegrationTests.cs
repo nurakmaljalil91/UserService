@@ -42,6 +42,7 @@ public sealed class ExternalLinksControllerIntegrationTests : ApiTestBase
     [Fact]
     public async Task GoogleLinkFlow_Succeeds()
     {
+        const string authorizationCode = "google-link-flow";
         using var client = await CreateAuthenticatedClientAsync();
 
         var startResponse = await client.PostAsync("/api/ExternalLinks/google/start", null);
@@ -50,7 +51,7 @@ public sealed class ExternalLinksControllerIntegrationTests : ApiTestBase
 
         var completeResponse = await client.PostAsJsonAsync("/api/ExternalLinks/google/complete", new
         {
-            Code = "code",
+            Code = authorizationCode,
             State = startPayload.Data!.State
         });
 
@@ -68,6 +69,7 @@ public sealed class ExternalLinksControllerIntegrationTests : ApiTestBase
     [Fact]
     public async Task PlannerTokenAccess_ReturnsCalendarToken()
     {
+        const string authorizationCode = "planner-token";
         using var userClient = await CreateAuthenticatedClientAsync();
 
         var startResponse = await userClient.PostAsync("/api/ExternalLinks/google/start", null);
@@ -75,7 +77,7 @@ public sealed class ExternalLinksControllerIntegrationTests : ApiTestBase
 
         var completeResponse = await userClient.PostAsJsonAsync("/api/ExternalLinks/google/complete", new
         {
-            Code = "code",
+            Code = authorizationCode,
             State = startPayload.Data!.State
         });
         completeResponse.EnsureSuccessStatusCode();
