@@ -68,6 +68,7 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<ResetPasswordCommand, BaseResponse<string>>, ResetPasswordCommandHandler>();
         services.AddScoped<IRequestHandler<CreateUserCommand, BaseResponse<UserDto>>, CreateUserCommandHandler>();
         services.AddScoped<IRequestHandler<AssignRoleToUserCommand, BaseResponse<UserDto>>, AssignRoleToUserCommandHandler>();
+        services.AddScoped<IRequestHandler<UnassignRoleFromUserCommand, BaseResponse<UserDto>>, UnassignRoleFromUserCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateUserCommand, BaseResponse<UserDto>>, UpdateUserCommandHandler>();
         services.AddScoped<IRequestHandler<SoftDeleteUserCommand, BaseResponse<string>>, SoftDeleteUserCommandHandler>();
         services.AddScoped<IRequestHandler<GetUserByIdQuery, BaseResponse<UserDto>>, GetUserByIdQueryHandler>();
@@ -138,6 +139,8 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<CreateGroupCommand, BaseResponse<GroupDto>>, CreateGroupCommandHandler>();
         services.AddScoped<IRequestHandler<AssignRoleToGroupCommand, BaseResponse<GroupDto>>, AssignRoleToGroupCommandHandler>();
         services.AddScoped<IRequestHandler<AssignUserToGroupCommand, BaseResponse<GroupDto>>, AssignUserToGroupCommandHandler>();
+        services.AddScoped<IRequestHandler<UnassignRoleFromGroupCommand, BaseResponse<GroupDto>>, UnassignRoleFromGroupCommandHandler>();
+        services.AddScoped<IRequestHandler<UnassignUserFromGroupCommand, BaseResponse<GroupDto>>, UnassignUserFromGroupCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateGroupCommand, BaseResponse<GroupDto>>, UpdateGroupCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteGroupCommand, BaseResponse<string>>, DeleteGroupCommandHandler>();
         services.AddScoped<IRequestHandler<StartExternalLinkCommand, BaseResponse<ExternalLinkStartResponse>>,

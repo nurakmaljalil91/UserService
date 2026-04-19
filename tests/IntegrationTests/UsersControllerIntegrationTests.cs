@@ -130,6 +130,59 @@ public class UsersControllerIntegrationTests : ApiTestBase
     }
 
     /// <summary>
+    /// Ensures roles can be unassigned from a user.
+    /// </summary>
+    [Fact]
+    public async Task Users_UnassignRole_Works()
+    {
+        using var client = await CreateAuthenticatedClientAsync();
+
+        var unique = Guid.NewGuid().ToString("N");
+        var roleResponse = await client.PostAsJsonAsync("/api/Roles", new
+        {
+            Name = $"role-{unique}",
+            Description = "Integration test role"
+        });
+        Assert.Equal(HttpStatusCode.Created, roleResponse.StatusCode);
+
+        var createdRole = await ReadResponseAsync<BaseResponse<RoleResponse>>(roleResponse);
+        Assert.True(createdRole.Success);
+        var roleId = createdRole.Data!.Id;
+
+        var userResponse = await client.PostAsJsonAsync("/api/Users", new
+        {
+            Username = $"user-{unique}",
+            Email = $"user-{unique}@example.com",
+            Password = "User123!"
+        });
+        Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
+
+        var createdUser = await ReadResponseAsync<BaseResponse<UserResponse>>(userResponse);
+        Assert.True(createdUser.Success);
+        var userId = createdUser.Data!.Id;
+
+        var assignResponse = await client.PostAsJsonAsync($"/api/Users/{userId}/assign-role", new
+        {
+            RoleId = roleId
+        });
+        Assert.Equal(HttpStatusCode.OK, assignResponse.StatusCode);
+
+        var unassignResponse = await client.DeleteAsync($"/api/Users/{userId}/roles/{roleId}");
+        Assert.Equal(HttpStatusCode.OK, unassignResponse.StatusCode);
+
+        var unassigned = await ReadResponseAsync<BaseResponse<UserResponse>>(unassignResponse);
+        Assert.True(unassigned.Success);
+        Assert.DoesNotContain(createdRole.Data!.Name, unassigned.Data!.Roles ?? Array.Empty<string>());
+
+        var getResponse = await client.GetAsync($"/api/Users/{userId}");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var fetched = await ReadResponseAsync<BaseResponse<UserResponse>>(getResponse);
+        Assert.True(fetched.Success);
+        Assert.DoesNotContain(createdRole.Data!.Name, fetched.Data!.Roles ?? Array.Empty<string>());
+    }
+
+    /// <summary>
     /// Ensures the current user can be retrieved via the me route.
     /// </summary>
     [Fact]

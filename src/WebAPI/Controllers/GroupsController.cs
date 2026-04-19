@@ -93,6 +93,26 @@ public sealed class GroupsController : ControllerBase
     }
 
     /// <summary>
+    /// Unassigns a role from a group.
+    /// </summary>
+    /// <param name="id">The unique identifier of the group to unassign the role from.</param>
+    /// <param name="roleId">The unique identifier of the role to unassign.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the updated <see cref="GroupDto"/> object.
+    /// </returns>
+    [HttpDelete("{id:guid}/roles/{roleId:guid}")]
+    public async Task<ActionResult<BaseResponse<GroupDto>>> UnassignRoleFromGroup(Guid id, Guid roleId)
+    {
+        var result = await _mediator.Send(new UnassignRoleFromGroupCommand
+        {
+            GroupId = id,
+            RoleId = roleId
+        });
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Assigns a user to a group.
     /// </summary>
     /// <param name="id">The unique identifier of the group to assign the user to.</param>
@@ -105,6 +125,26 @@ public sealed class GroupsController : ControllerBase
     {
         command.GroupId = id;
         var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Unassigns a user from a group.
+    /// </summary>
+    /// <param name="id">The unique identifier of the group to unassign the user from.</param>
+    /// <param name="userId">The unique identifier of the user to unassign.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the updated <see cref="GroupDto"/> object.
+    /// </returns>
+    [HttpDelete("{id:guid}/users/{userId:guid}")]
+    public async Task<ActionResult<BaseResponse<GroupDto>>> UnassignUserFromGroup(Guid id, Guid userId)
+    {
+        var result = await _mediator.Send(new UnassignUserFromGroupCommand
+        {
+            GroupId = id,
+            UserId = userId
+        });
+
         return Ok(result);
     }
 

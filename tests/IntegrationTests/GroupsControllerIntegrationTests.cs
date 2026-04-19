@@ -126,6 +126,58 @@ public class GroupsControllerIntegrationTests : ApiTestBase
     }
 
     /// <summary>
+    /// Ensures roles can be unassigned from a group.
+    /// </summary>
+    [Fact]
+    public async Task Groups_UnassignRole_Works()
+    {
+        using var client = await CreateAuthenticatedClientAsync();
+
+        var unique = Guid.NewGuid().ToString("N");
+        var roleResponse = await client.PostAsJsonAsync("/api/Roles", new
+        {
+            Name = $"role-{unique}",
+            Description = "Integration test role"
+        });
+        Assert.Equal(HttpStatusCode.Created, roleResponse.StatusCode);
+
+        var createdRole = await ReadResponseAsync<BaseResponse<RoleResponse>>(roleResponse);
+        Assert.True(createdRole.Success);
+        var roleId = createdRole.Data!.Id;
+
+        var groupResponse = await client.PostAsJsonAsync("/api/Groups", new
+        {
+            Name = $"group-{unique}",
+            Description = "Integration test group"
+        });
+        Assert.Equal(HttpStatusCode.Created, groupResponse.StatusCode);
+
+        var createdGroup = await ReadResponseAsync<BaseResponse<GroupResponse>>(groupResponse);
+        Assert.True(createdGroup.Success);
+        var groupId = createdGroup.Data!.Id;
+
+        var assignResponse = await client.PostAsJsonAsync($"/api/Groups/{groupId}/assign-role", new
+        {
+            RoleId = roleId
+        });
+        Assert.Equal(HttpStatusCode.OK, assignResponse.StatusCode);
+
+        var unassignResponse = await client.DeleteAsync($"/api/Groups/{groupId}/roles/{roleId}");
+        Assert.Equal(HttpStatusCode.OK, unassignResponse.StatusCode);
+
+        var unassigned = await ReadResponseAsync<BaseResponse<GroupResponse>>(unassignResponse);
+        Assert.True(unassigned.Success);
+        Assert.DoesNotContain(createdRole.Data!.Name, unassigned.Data!.Roles ?? Array.Empty<string>());
+
+        var getResponse = await client.GetAsync($"/api/Groups/{groupId}");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var fetched = await ReadResponseAsync<BaseResponse<GroupResponse>>(getResponse);
+        Assert.True(fetched.Success);
+        Assert.DoesNotContain(createdRole.Data!.Name, fetched.Data!.Roles ?? Array.Empty<string>());
+    }
+
+    /// <summary>
     /// Ensures users can be assigned to a group.
     /// </summary>
     [Fact]
@@ -178,6 +230,58 @@ public class GroupsControllerIntegrationTests : ApiTestBase
         var fetchedUser = await ReadResponseAsync<BaseResponse<UserResponse>>(getUserResponse);
         Assert.True(fetchedUser.Success);
         Assert.Contains(createdGroup.Data!.Name, fetchedUser.Data!.Groups ?? Array.Empty<string>());
+    }
+
+    /// <summary>
+    /// Ensures users can be unassigned from a group.
+    /// </summary>
+    [Fact]
+    public async Task Groups_UnassignUser_Works()
+    {
+        using var client = await CreateAuthenticatedClientAsync();
+
+        var unique = Guid.NewGuid().ToString("N");
+        var userResponse = await client.PostAsJsonAsync("/api/Users", new
+        {
+            Username = $"group-user-{unique}",
+            Email = $"group-user-{unique}@example.com",
+            Password = "User123!"
+        });
+        Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
+
+        var createdUser = await ReadResponseAsync<BaseResponse<UserResponse>>(userResponse);
+        Assert.True(createdUser.Success);
+        var userId = createdUser.Data!.Id;
+
+        var groupResponse = await client.PostAsJsonAsync("/api/Groups", new
+        {
+            Name = $"group-{unique}",
+            Description = "Integration test group"
+        });
+        Assert.Equal(HttpStatusCode.Created, groupResponse.StatusCode);
+
+        var createdGroup = await ReadResponseAsync<BaseResponse<GroupResponse>>(groupResponse);
+        Assert.True(createdGroup.Success);
+        var groupId = createdGroup.Data!.Id;
+
+        var assignResponse = await client.PostAsJsonAsync($"/api/Groups/{groupId}/assign-user", new
+        {
+            UserId = userId
+        });
+        Assert.Equal(HttpStatusCode.OK, assignResponse.StatusCode);
+
+        var unassignResponse = await client.DeleteAsync($"/api/Groups/{groupId}/users/{userId}");
+        Assert.Equal(HttpStatusCode.OK, unassignResponse.StatusCode);
+
+        var unassigned = await ReadResponseAsync<BaseResponse<GroupResponse>>(unassignResponse);
+        Assert.True(unassigned.Success);
+
+        var getUserResponse = await client.GetAsync($"/api/Users/{userId}");
+        Assert.Equal(HttpStatusCode.OK, getUserResponse.StatusCode);
+
+        var fetchedUser = await ReadResponseAsync<BaseResponse<UserResponse>>(getUserResponse);
+        Assert.True(fetchedUser.Success);
+        Assert.DoesNotContain(createdGroup.Data!.Name, fetchedUser.Data!.Groups ?? Array.Empty<string>());
     }
 
     /// <summary>

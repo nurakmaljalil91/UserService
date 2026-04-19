@@ -91,6 +91,26 @@ public sealed class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// Unassigns a role from a user.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to unassign the role from.</param>
+    /// <param name="roleId">The unique identifier of the role to unassign.</param>
+    /// <returns>
+    /// A <see cref="BaseResponse{T}"/> containing the updated <see cref="UserDto"/> object.
+    /// </returns>
+    [HttpDelete("{id:guid}/roles/{roleId:guid}")]
+    public async Task<ActionResult<BaseResponse<UserDto>>> UnassignRoleFromUser(Guid id, Guid roleId)
+    {
+        var result = await _mediator.Send(new UnassignRoleFromUserCommand
+        {
+            UserId = id,
+            RoleId = roleId
+        });
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Updates an existing user with the specified details.
     /// </summary>
     /// <param name="id">The unique identifier of the user to update.</param>

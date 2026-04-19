@@ -2,7 +2,9 @@
 @http = http://localhost:5120
 @WebAPI_HostAddress = https://localhost:7058
 @bearerToken = 
+@userId = 
 @roleId = 
+@groupId = 
 
 # Health - Liveness
 GET {{WebAPI_HostAddress}}/health/live
@@ -103,6 +105,23 @@ Authorization: Bearer {{bearerToken}}
 
 ###
 
+# Users - Assign role
+POST {{WebAPI_HostAddress}}/api/users/{{userId}}/assign-role
+Content-Type: application/json
+Authorization: Bearer {{bearerToken}}
+
+{
+  "roleId": "{{roleId}}"
+}
+
+###
+
+# Users - Unassign role
+DELETE {{WebAPI_HostAddress}}/api/users/{{userId}}/roles/{{roleId}}
+Authorization: Bearer {{bearerToken}}
+
+###
+
 # Roles - Get Admin role id (copy the Admin id into roleId above)
 GET {{WebAPI_HostAddress}}/api/roles?page=1&total=20&sortBy=name&descending=false&filter=name eq 'Admin'
 Accept: application/json
@@ -150,6 +169,40 @@ Authorization: Bearer {{bearerToken}}
 
 # Roles - Delete
 DELETE {{WebAPI_HostAddress}}/api/roles/{{roleId}}
+Authorization: Bearer {{bearerToken}}
+
+###
+
+# Groups - Assign role
+POST {{WebAPI_HostAddress}}/api/groups/{{groupId}}/assign-role
+Content-Type: application/json
+Authorization: Bearer {{bearerToken}}
+
+{
+  "roleId": "{{roleId}}"
+}
+
+###
+
+# Groups - Unassign role
+DELETE {{WebAPI_HostAddress}}/api/groups/{{groupId}}/roles/{{roleId}}
+Authorization: Bearer {{bearerToken}}
+
+###
+
+# Groups - Assign user
+POST {{WebAPI_HostAddress}}/api/groups/{{groupId}}/assign-user
+Content-Type: application/json
+Authorization: Bearer {{bearerToken}}
+
+{
+  "userId": "{{userId}}"
+}
+
+###
+
+# Groups - Unassign user
+DELETE {{WebAPI_HostAddress}}/api/groups/{{groupId}}/users/{{userId}}
 Authorization: Bearer {{bearerToken}}
 
 ###
