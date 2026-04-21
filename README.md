@@ -19,6 +19,7 @@ Here are functionalities for this web api:
 - User information
 - Login information
 - Profile including address, blood, image, tag
+- RBAC (Role-Based Access Control) with Permissions and Roles management
 
 ## Pre-requisites
 
@@ -146,6 +147,292 @@ dotnet build UserService.slnx -c Release /p:TreatWarningsAsErrors=true
 ## API Documentation
 
 > If the project includes an API, provide detailed documentation for each API endpoint, including the endpoint URL, request and response parameters, and expected responses.
+
+### RBAC (Role-Based Access Control) Endpoints
+
+The User Service includes comprehensive RBAC functionality through Permissions and Roles endpoints. All RBAC endpoints require authentication via JWT token in the Authorization header.
+
+#### Permissions Endpoints
+
+**Base URL:** `/api/Permissions`
+
+##### Get All Permissions
+
+```http
+GET /api/Permissions
+Authorization: Bearer {token}
+```
+
+Query Parameters:
+- `PageNumber` (optional): Page number for pagination (default: 1)
+- `PageSize` (optional): Number of items per page (default: 10)
+- `Filter` (optional): Filter expression using OData-like syntax. Examples:
+  - `name eq 'users.read'` - exact match
+  - `name contains 'user'` - contains substring
+  - `name startswith 'users'` - starts with
+- `OrderBy` (optional): Field to sort by (e.g., `name`, `name desc`)
+
+Response:
+```json
+{
+  "data": {
+    "items": [
+      {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "name": "users.read",
+        "normalizedName": "USERS.READ",
+        "description": "Permission to read user data"
+      }
+    ],
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "totalPages": 1
+  },
+  "succeeded": true,
+  "message": "Request successful"
+}
+```
+
+##### Get Permission by ID
+
+```http
+GET /api/Permissions/{id}
+Authorization: Bearer {token}
+```
+
+Response:
+```json
+{
+  "data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "users.read",
+    "normalizedName": "USERS.READ",
+    "description": "Permission to read user data"
+  },
+  "succeeded": true,
+  "message": "Request successful"
+}
+```
+
+##### Create Permission
+
+```http
+POST /api/Permissions
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+Request Body:
+```json
+{
+  "name": "users.write",
+  "description": "Permission to create and update user data"
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "users.write",
+    "normalizedName": "USERS.WRITE",
+    "description": "Permission to create and update user data"
+  },
+  "succeeded": true,
+  "message": "Created permission with id 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
+```
+
+##### Update Permission
+
+```http
+PATCH /api/Permissions/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+Request Body:
+```json
+{
+  "name": "users.write",
+  "description": "Updated permission description"
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "users.write",
+    "normalizedName": "USERS.WRITE",
+    "description": "Updated permission description"
+  },
+  "succeeded": true,
+  "message": "Permission updated."
+}
+```
+
+##### Delete Permission
+
+```http
+DELETE /api/Permissions/{id}
+Authorization: Bearer {token}
+```
+
+Response:
+```json
+{
+  "data": "Permission deleted.",
+  "succeeded": true,
+  "message": "Permission deleted."
+}
+```
+
+#### Roles Endpoints
+
+**Base URL:** `/api/Roles`
+
+##### Get All Roles
+
+```http
+GET /api/Roles
+Authorization: Bearer {token}
+```
+
+Query Parameters:
+- `PageNumber` (optional): Page number for pagination (default: 1)
+- `PageSize` (optional): Number of items per page (default: 10)
+- `Filter` (optional): Filter expression using OData-like syntax. Examples:
+  - `name eq 'Administrator'` - exact match
+  - `name contains 'admin'` - contains substring
+  - `name startswith 'Admin'` - starts with
+- `OrderBy` (optional): Field to sort by (e.g., `name`, `name desc`)
+
+Response:
+```json
+{
+  "data": {
+    "items": [
+      {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "name": "Administrator",
+        "normalizedName": "ADMINISTRATOR",
+        "description": "Full system access",
+        "permissions": ["users.read", "users.write", "roles.manage"]
+      }
+    ],
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalCount": 1,
+    "totalPages": 1
+  },
+  "succeeded": true,
+  "message": "Request successful"
+}
+```
+
+##### Get Role by ID
+
+```http
+GET /api/Roles/{id}
+Authorization: Bearer {token}
+```
+
+Response:
+```json
+{
+  "data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "Administrator",
+    "normalizedName": "ADMINISTRATOR",
+    "description": "Full system access",
+    "permissions": ["users.read", "users.write", "roles.manage"]
+  },
+  "succeeded": true,
+  "message": "Request successful"
+}
+```
+
+##### Create Role
+
+```http
+POST /api/Roles
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+Request Body:
+```json
+{
+  "name": "Manager",
+  "description": "Manager role with limited permissions"
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "Manager",
+    "normalizedName": "MANAGER",
+    "description": "Manager role with limited permissions",
+    "permissions": []
+  },
+  "succeeded": true,
+  "message": "Created role with id 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
+```
+
+##### Update Role
+
+```http
+PATCH /api/Roles/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+Request Body:
+```json
+{
+  "name": "Manager",
+  "description": "Updated manager role description"
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "name": "Manager",
+    "normalizedName": "MANAGER",
+    "description": "Updated manager role description",
+    "permissions": []
+  },
+  "succeeded": true,
+  "message": "Role updated."
+}
+```
+
+##### Delete Role
+
+```http
+DELETE /api/Roles/{id}
+Authorization: Bearer {token}
+```
+
+Response:
+```json
+{
+  "data": "Role deleted.",
+  "succeeded": true,
+  "message": "Role deleted."
+}
+```
 
 ## Endpoint URL
 
