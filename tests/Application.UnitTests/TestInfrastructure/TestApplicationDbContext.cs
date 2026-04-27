@@ -60,6 +60,26 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<ExternalToken> ExternalTokens => Set<ExternalToken>();
 
     /// <summary>
+    /// Gets the <see cref="DbSet{Education}"/> representing education records.
+    /// </summary>
+    public DbSet<Education> Educations => Set<Education>();
+
+    /// <summary>
+    /// Gets the <see cref="DbSet{Skill}"/> representing skills.
+    /// </summary>
+    public DbSet<Skill> Skills => Set<Skill>();
+
+    /// <summary>
+    /// Gets the <see cref="DbSet{WorkExperience}"/> representing work experience records.
+    /// </summary>
+    public DbSet<WorkExperience> WorkExperiences => Set<WorkExperience>();
+
+    /// <summary>
+    /// Gets the <see cref="DbSet{Project}"/> representing project records.
+    /// </summary>
+    public DbSet<Project> Projects => Set<Project>();
+
+    /// <summary>
     /// Configures the entity mappings for the context.
     /// </summary>
     /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -100,5 +120,9 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
                     provider => provider.Value,
                     value => ExternalProvider.From(value));
         });
+        modelBuilder.Entity<Education>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Skill>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<WorkExperience>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Project>(builder => builder.HasKey(x => x.Id));
     }
 }

@@ -135,4 +135,24 @@ public class User : BaseEntity<Guid>
     /// Gets the external OAuth tokens linked to the user.
     /// </summary>
     public IList<ExternalToken> ExternalTokens { get; private set; } = new List<ExternalToken>();
+
+    /// <summary>
+    /// Gets the education records associated with the user.
+    /// </summary>
+    public IList<Education> Educations { get; private set; } = new List<Education>();
+
+    /// <summary>
+    /// Gets the skills associated with the user.
+    /// </summary>
+    public IList<Skill> Skills { get; private set; } = new List<Skill>();
+
+    /// <summary>
+    /// Gets the work experience records associated with the user.
+    /// </summary>
+    public IList<WorkExperience> WorkExperiences { get; private set; } = new List<WorkExperience>();
+
+    /// <summary>
+    /// Gets the project records associated with the user.
+    /// </summary>
+    public IList<Project> Projects { get; private set; } = new List<Project>();
 }

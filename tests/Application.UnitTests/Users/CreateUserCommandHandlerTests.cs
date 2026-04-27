@@ -33,6 +33,9 @@ public class CreateUserCommandHandlerTests
         Assert.Equal("user@example.com", user.Email);
         Assert.Equal("USER@EXAMPLE.COM", user.NormalizedEmail);
         Assert.Equal("hashed::pass123!", user.PasswordHash);
+
+        var profile = await context.UserProfiles.SingleAsync();
+        Assert.Equal(user.Id, profile.UserId);
     }
 
     [Fact]

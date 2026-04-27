@@ -73,6 +73,8 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, BaseR
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password ?? string.Empty);
 
+        user.Profile = new UserProfile();
+
         _context.Users.Add(user);
         await _context.SaveChangesAsync(cancellationToken);
 

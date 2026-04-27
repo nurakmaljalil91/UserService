@@ -296,34 +296,37 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.UserProfiles.Any() && adminUser != null && standardUser != null)
+        if (adminUser != null && !_context.UserProfiles.Any(p => p.UserId == adminUser.Id))
         {
-            _context.UserProfiles.AddRange(
-                new UserProfile
-                {
-                    UserId = adminUser.Id,
-                    DisplayName = "Admin Profile",
-                    FirstName = "System",
-                    LastName = "Admin",
-                    DateOfBirth = new LocalDate(1988, 5, 10),
-                    BirthPlace = "Kuala Lumpur",
-                    Bio = "Seeded admin profile",
-                    BloodType = "O+",
-                    Tag = "admin"
-                },
-                new UserProfile
-                {
-                    UserId = standardUser.Id,
-                    DisplayName = "User Profile",
-                    FirstName = "Standard",
-                    LastName = "User",
-                    DateOfBirth = new LocalDate(1995, 9, 21),
-                    BirthPlace = "Penang",
-                    Bio = "Seeded user profile",
-                    BloodType = "A+",
-                    Tag = "user"
-                });
+            _context.UserProfiles.Add(new UserProfile
+            {
+                UserId = adminUser.Id,
+                DisplayName = "Admin Profile",
+                FirstName = "System",
+                LastName = "Admin",
+                DateOfBirth = new LocalDate(1988, 5, 10),
+                BirthPlace = "Kuala Lumpur",
+                Bio = "Seeded admin profile",
+                BloodType = "O+",
+                Tag = "admin"
+            });
+            await _context.SaveChangesAsync();
+        }
 
+        if (standardUser != null && !_context.UserProfiles.Any(p => p.UserId == standardUser.Id))
+        {
+            _context.UserProfiles.Add(new UserProfile
+            {
+                UserId = standardUser.Id,
+                DisplayName = "User Profile",
+                FirstName = "Standard",
+                LastName = "User",
+                DateOfBirth = new LocalDate(1995, 9, 21),
+                BirthPlace = "Penang",
+                Bio = "Seeded user profile",
+                BloodType = "A+",
+                Tag = "user"
+            });
             await _context.SaveChangesAsync();
         }
 
@@ -425,6 +428,106 @@ public class ApplicationDbContextInitialiser
                     Value = "en"
                 });
 
+            await _context.SaveChangesAsync();
+        }
+
+        if (adminUser != null && !_context.Skills.Any(s => s.UserId == adminUser.Id))
+        {
+            _context.Skills.AddRange(
+                new Skill { UserId = adminUser.Id, Name = "Leadership", Proficiency = "Expert", YearsOfExperience = 10 },
+                new Skill { UserId = adminUser.Id, Name = "Architecture", Proficiency = "Expert", YearsOfExperience = 8 },
+                new Skill { UserId = adminUser.Id, Name = "C#", Proficiency = "Expert", YearsOfExperience = 12 });
+            await _context.SaveChangesAsync();
+        }
+
+        if (standardUser != null && !_context.Skills.Any(s => s.UserId == standardUser.Id))
+        {
+            _context.Skills.AddRange(
+                new Skill { UserId = standardUser.Id, Name = "Angular", Proficiency = "Intermediate", YearsOfExperience = 3 },
+                new Skill { UserId = standardUser.Id, Name = "TypeScript", Proficiency = "Intermediate", YearsOfExperience = 3 },
+                new Skill { UserId = standardUser.Id, Name = "Communication", Proficiency = "Beginner", YearsOfExperience = 1 });
+            await _context.SaveChangesAsync();
+        }
+
+        if (adminUser != null && !_context.Educations.Any(e => e.UserId == adminUser.Id))
+        {
+            _context.Educations.Add(new Education
+            {
+                UserId = adminUser.Id,
+                Institution = "MIT",
+                Degree = "Master of Science",
+                FieldOfStudy = "Computer Science",
+                StartDate = new LocalDate(2010, 9, 1),
+                EndDate = new LocalDate(2012, 6, 30)
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        if (standardUser != null && !_context.Educations.Any(e => e.UserId == standardUser.Id))
+        {
+            _context.Educations.Add(new Education
+            {
+                UserId = standardUser.Id,
+                Institution = "University of Malaya",
+                Degree = "Bachelor of Computer Science",
+                FieldOfStudy = "Software Engineering",
+                StartDate = new LocalDate(2013, 9, 1),
+                EndDate = new LocalDate(2017, 6, 30)
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        if (adminUser != null && !_context.WorkExperiences.Any(w => w.UserId == adminUser.Id))
+        {
+            _context.WorkExperiences.Add(new WorkExperience
+            {
+                UserId = adminUser.Id,
+                Company = "Cerxos",
+                Position = "CTO",
+                StartDate = new LocalDate(2020, 1, 1),
+                EndDate = null,
+                Location = "Kuala Lumpur"
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        if (standardUser != null && !_context.WorkExperiences.Any(w => w.UserId == standardUser.Id))
+        {
+            _context.WorkExperiences.Add(new WorkExperience
+            {
+                UserId = standardUser.Id,
+                Company = "Tech Corp",
+                Position = "Frontend Developer",
+                StartDate = new LocalDate(2018, 3, 1),
+                EndDate = new LocalDate(2023, 12, 31),
+                Location = "Penang"
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        if (adminUser != null && !_context.Projects.Any(p => p.UserId == adminUser.Id))
+        {
+            _context.Projects.Add(new Project
+            {
+                UserId = adminUser.Id,
+                Title = "CerxosWebSystem",
+                TechStack = ".NET, Angular, PostgreSQL",
+                StartDate = new LocalDate(2023, 1, 1),
+                EndDate = null
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        if (standardUser != null && !_context.Projects.Any(p => p.UserId == standardUser.Id))
+        {
+            _context.Projects.Add(new Project
+            {
+                UserId = standardUser.Id,
+                Title = "Portfolio Site",
+                TechStack = "Angular, TailwindCSS",
+                StartDate = new LocalDate(2022, 6, 1),
+                EndDate = new LocalDate(2022, 12, 31)
+            });
             await _context.SaveChangesAsync();
         }
     }

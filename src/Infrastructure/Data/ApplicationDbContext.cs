@@ -75,6 +75,18 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     /// <inheritdoc />
     public DbSet<ExternalToken> ExternalTokens => Set<ExternalToken>();
 
+    /// <inheritdoc />
+    public DbSet<Education> Educations => Set<Education>();
+
+    /// <inheritdoc />
+    public DbSet<Skill> Skills => Set<Skill>();
+
+    /// <inheritdoc />
+    public DbSet<WorkExperience> WorkExperiences => Set<WorkExperience>();
+
+    /// <inheritdoc />
+    public DbSet<Project> Projects => Set<Project>();
+
     /// <summary>
     /// Configures the entity model for the context.
     /// </summary>

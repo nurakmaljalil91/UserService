@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <AssemblyName>Infrastructure</AssemblyName>
+    <!-- NU1903 is suppressed because System.Security.Cryptography.Xml 8.0.2 is a transitive
+         dependency of Microsoft.AspNetCore.Identity and has no independently upgradable fix.
+         Track: https://github.com/advisories/GHSA-37gx-xxp4-5rgx -->
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -94,6 +94,26 @@ public interface IApplicationDbContext
     DbSet<ExternalToken> ExternalTokens { get; }
 
     /// <summary>
+    /// Gets the set of <see cref="Education"/> entities.
+    /// </summary>
+    DbSet<Education> Educations { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="Skill"/> entities.
+    /// </summary>
+    DbSet<Skill> Skills { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="WorkExperience"/> entities.
+    /// </summary>
+    DbSet<WorkExperience> WorkExperiences { get; }
+
+    /// <summary>
+    /// Gets the set of <see cref="Project"/> entities.
+    /// </summary>
+    DbSet<Project> Projects { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
