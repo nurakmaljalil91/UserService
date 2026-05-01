@@ -16,7 +16,8 @@ public class RegisterCommandHandlerTests
     {
         await using var context = TestDbContextFactory.Create();
         var passwordHasher = new TestPasswordHasherService();
-        var handler = new RegisterCommandHandler(context, passwordHasher);
+        var publisher = new TestNotificationRequestPublisher();
+        var handler = new RegisterCommandHandler(context, passwordHasher, publisher);
 
         var command = new RegisterCommand
         {
@@ -41,6 +42,16 @@ public class RegisterCommandHandlerTests
         Assert.Equal("USER", role.NormalizedName);
         Assert.Equal(user.Id, userRole.UserId);
         Assert.Equal(role.Id, userRole.RoleId);
+
+        var notification = Assert.Single(publisher.Notifications);
+        Assert.Equal("UserService", notification.SourceService);
+        Assert.Equal("UserRegistered", notification.SourceEventType);
+        Assert.Equal(user.Id.ToString(), notification.SourceEventId);
+        Assert.Equal("Welcome newuser!", notification.Title);
+        Assert.Equal("Welcome newuser!", notification.Body);
+        var recipient = Assert.Single(notification.Recipients);
+        Assert.Equal(user.Id.ToString(), recipient.RecipientId);
+        Assert.Equal("newuser", recipient.DisplayName);
     }
 
     [Fact]
@@ -56,7 +67,10 @@ public class RegisterCommandHandlerTests
         context.Roles.Add(role);
         await context.SaveChangesAsync();
 
-        var handler = new RegisterCommandHandler(context, new TestPasswordHasherService());
+        var handler = new RegisterCommandHandler(
+            context,
+            new TestPasswordHasherService(),
+            new TestNotificationRequestPublisher());
 
         var result = await handler.Handle(new RegisterCommand
         {
@@ -87,7 +101,8 @@ public class RegisterCommandHandlerTests
         });
         await context.SaveChangesAsync();
 
-        var handler = new RegisterCommandHandler(context, new TestPasswordHasherService());
+        var publisher = new TestNotificationRequestPublisher();
+        var handler = new RegisterCommandHandler(context, new TestPasswordHasherService(), publisher);
 
         var result = await handler.Handle(new RegisterCommand
         {
@@ -98,5 +113,6 @@ public class RegisterCommandHandlerTests
 
         Assert.False(result.Success);
         Assert.Equal("Username or email already exists.", result.Message);
+        Assert.Empty(publisher.Notifications);
     }
 }

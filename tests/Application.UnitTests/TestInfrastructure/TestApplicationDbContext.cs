@@ -80,6 +80,11 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Project> Projects => Set<Project>();
 
     /// <summary>
+    /// Gets the <see cref="DbSet{Language}"/> representing language records.
+    /// </summary>
+    public DbSet<Language> Languages => Set<Language>();
+
+    /// <summary>
     /// Configures the entity mappings for the context.
     /// </summary>
     /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
@@ -124,5 +129,6 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<Skill>(builder => builder.HasKey(x => x.Id));
         modelBuilder.Entity<WorkExperience>(builder => builder.HasKey(x => x.Id));
         modelBuilder.Entity<Project>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<Language>(builder => builder.HasKey(x => x.Id));
     }
 }

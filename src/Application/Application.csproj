@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\lib\Notification.Contracts\Notification.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

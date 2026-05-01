@@ -5,13 +5,16 @@ using System.Text;
 using Application.Common.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Data.Interceptors;
+using Infrastructure.Messaging;
 using Infrastructure.Services;
+using MassTransit;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using RabbitMQ.Client;
 
 namespace Infrastructure;
 
@@ -84,10 +87,63 @@ public static class DependencyInjection
         services.AddTransient<IClockService, ClockService>();
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
         services.AddScoped<IRefreshTokenHasher, RefreshTokenHasher>();
+        services.AddTransient<INotificationRequestPublisher, NotificationRequestPublisher>();
         services.AddDataProtection();
         services.AddScoped<IExternalTokenProtector, ExternalTokenProtector>();
         services.AddScoped<IExternalLinkStateService, ExternalLinkStateService>();
         services.AddHttpClient<IGoogleOAuthService, GoogleOAuthService>();
+
+        var messageBrokerSettings = new MessageBrokerSettings();
+        configuration.GetSection(MessageBrokerSettings.SectionName).Bind(messageBrokerSettings);
+        var useInMemoryMessageBroker = configuration.GetValue<bool>("MessageBroker:UseInMemory");
+
+        if (!useInMemoryMessageBroker)
+        {
+            var virtualHost = messageBrokerSettings.VirtualHost?.Trim('/');
+            var rabbitMqUri = new UriBuilder
+            {
+                Scheme = "amqp",
+                Host = messageBrokerSettings.Host,
+                UserName = messageBrokerSettings.Username,
+                Password = messageBrokerSettings.Password,
+                Path = string.IsNullOrWhiteSpace(virtualHost) ? "/" : $"/{virtualHost}"
+            }.Uri;
+
+            healthChecks.AddRabbitMQ(
+                serviceProvider =>
+                {
+                    var factory = new ConnectionFactory
+                    {
+                        Uri = rabbitMqUri
+                    };
+                    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+                },
+                name: "rabbitmq",
+                tags: new[] { "ready" });
+        }
+
+        services.AddMassTransit(configurator =>
+        {
+            if (useInMemoryMessageBroker)
+            {
+                configurator.UsingInMemory((context, cfg) =>
+                {
+                    cfg.ConfigureEndpoints(context);
+                });
+                return;
+            }
+
+            configurator.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(messageBrokerSettings.Host, messageBrokerSettings.VirtualHost, host =>
+                {
+                    host.Username(messageBrokerSettings.Username);
+                    host.Password(messageBrokerSettings.Password);
+                });
+
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         return services;
     }

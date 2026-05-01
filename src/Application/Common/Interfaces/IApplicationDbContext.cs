@@ -114,6 +114,11 @@ public interface IApplicationDbContext
     DbSet<Project> Projects { get; }
 
     /// <summary>
+    /// Gets the set of <see cref="Language"/> entities.
+    /// </summary>
+    DbSet<Language> Languages { get; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database asynchronously.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>

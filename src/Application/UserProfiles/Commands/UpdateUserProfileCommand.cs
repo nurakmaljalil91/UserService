@@ -84,4 +84,9 @@ public class UpdateUserProfileCommand : IRequest<BaseResponse<UserProfileDto>>
     /// Gets or sets the blood type recorded for the user.
     /// </summary>
     public string? BloodType { get; set; }
+
+    /// <summary>
+    /// Gets or sets the tax identification number.
+    /// </summary>
+    public string? TaxNumber { get; set; }
 }

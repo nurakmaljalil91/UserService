@@ -41,6 +41,7 @@ public sealed record UserProfileDto
         ImageUrl = profile.ImageUrl;
         Tag = profile.Tag;
         BloodType = profile.BloodType;
+        TaxNumber = profile.TaxNumber;
     }
 
     /// <summary>
@@ -122,4 +123,9 @@ public sealed record UserProfileDto
     /// Gets the blood type recorded for the user.
     /// </summary>
     public string? BloodType { get; init; }
+
+    /// <summary>
+    /// Gets the tax identification number.
+    /// </summary>
+    public string? TaxNumber { get; init; }
 }

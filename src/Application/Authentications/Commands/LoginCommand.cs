@@ -8,6 +8,8 @@ using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NodaTime;
+using Notification.Contracts.Events;
+using Notification.Contracts.Models;
 using System.Security.Cryptography;
 
 namespace Application.Authentications.Commands;
@@ -40,6 +42,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
 {
     private const int DefaultRefreshExpiryDays = 30;
     private const string InvalidCredentialsMessage = "Invalid username or password.";
+    private const string SourceService = "UserService";
+    private const string UserFirstLoginEventType = "UserFirstLogin";
 
     private readonly IApplicationDbContext _context;
     private readonly IPasswordHasherService _passwordHasher;
@@ -47,6 +51,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
     private readonly IClockService _clockService;
     private readonly IConfiguration _configuration;
     private readonly IRefreshTokenHasher _refreshTokenHasher;
+    private readonly INotificationRequestPublisher _notificationPublisher;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LoginCommandHandler"/> class.
@@ -57,13 +62,15 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
     /// <param name="clockService">The clock service for NodaTime instants.</param>
     /// <param name="configuration">The application configuration.</param>
     /// <param name="refreshTokenHasher">The refresh token hashing service.</param>
+    /// <param name="notificationPublisher">The publisher for notification requests.</param>
     public LoginCommandHandler(
         IApplicationDbContext context,
         IPasswordHasherService passwordHasher,
         IDateTime dateTime,
         IClockService clockService,
         IConfiguration configuration,
-        IRefreshTokenHasher refreshTokenHasher)
+        IRefreshTokenHasher refreshTokenHasher,
+        INotificationRequestPublisher notificationPublisher)
     {
         _context = context;
         _passwordHasher = passwordHasher;
@@ -71,6 +78,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
         _clockService = clockService;
         _configuration = configuration;
         _refreshTokenHasher = refreshTokenHasher;
+        _notificationPublisher = notificationPublisher;
     }
 
     /// <summary>
@@ -129,6 +137,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
         var refreshTokenHash = _refreshTokenHasher.Hash(refreshToken);
         var refreshExpiryDays = ResolveRefreshExpiryDays();
         var refreshExpiresAt = _clockService.Now + Duration.FromDays(refreshExpiryDays);
+        var isFirstSuccessfulLogin = !await _context.LoginAttempts.AnyAsync(
+            attempt => attempt.UserId == user.Id && attempt.IsSuccessful,
+            cancellationToken);
 
         _context.Sessions.Add(new Session
         {
@@ -140,6 +151,13 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
 
         await RecordLoginAttemptAsync(user.Id, identifier, true, null);
         await _context.SaveChangesAsync(cancellationToken);
+
+        if (isFirstSuccessfulLogin)
+        {
+            await _notificationPublisher.PublishAsync(
+                CreateWelcomeNotification(user, $"{user.Id}:first-login"),
+                cancellationToken);
+        }
 
         return BaseResponse<LoginResponse>.Ok(
             new LoginResponse(
@@ -184,6 +202,34 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
         Span<byte> bytes = stackalloc byte[64];
         RandomNumberGenerator.Fill(bytes);
         return Convert.ToBase64String(bytes);
+    }
+
+    private static NotificationRequestedV1 CreateWelcomeNotification(User user, string sourceEventId)
+    {
+        var message = $"Welcome {user.Username}!";
+
+        return new NotificationRequestedV1
+        {
+            SourceService = SourceService,
+            SourceEventType = UserFirstLoginEventType,
+            SourceEventId = sourceEventId,
+            Title = message,
+            Body = message,
+            Priority = NotificationPriorityV1.Normal,
+            Channels = new[] { NotificationChannelV1.InApp },
+            Recipients = new[]
+            {
+                new NotificationRecipientV1
+                {
+                    RecipientId = user.Id.ToString(),
+                    RecipientType = RecipientTypeV1.Individual,
+                    DisplayName = user.Username,
+                    Email = user.Email,
+                    InAppEnabled = true,
+                    Channels = new[] { NotificationChannelV1.InApp }
+                }
+            }
+        };
     }
 }
 

@@ -85,6 +85,11 @@ public class UserProfile : BaseEntity<Guid>
     public string? BloodType { get; set; }
 
     /// <summary>
+    /// Gets or sets the tax identification number.
+    /// </summary>
+    public string? TaxNumber { get; set; }
+
+    /// <summary>
     /// Gets or sets the user that owns the profile.
     /// </summary>
     public User? User { get; set; }

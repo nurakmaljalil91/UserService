@@ -87,6 +87,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     /// <inheritdoc />
     public DbSet<Project> Projects => Set<Project>();
 
+    /// <inheritdoc />
+    public DbSet<Language> Languages => Set<Language>();
+
     /// <summary>
     /// Configures the entity model for the context.
     /// </summary>

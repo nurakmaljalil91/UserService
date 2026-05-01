@@ -29,10 +29,14 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="10.0.0" />
     <!-- Packages for Infrastructure -->
     <PackageVersion Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+    <PackageVersion Include="AspNetCore.HealthChecks.RabbitMQ" Version="9.0.0" />
     <PackageVersion Include="EFCore.NamingConventions" Version="10.0.0-rc.2" />
+    <PackageVersion Include="MassTransit" Version="8.5.0" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.5.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.1" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    <PackageVersion Include="RabbitMQ.Client" Version="7.1.2" />
     <!-- Packages for Domain -->
     <PackageVersion Include="NodaTime" Version="3.2.3" />
     <!-- Packages for Unit Tests -->

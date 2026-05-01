@@ -530,5 +530,21 @@ public class ApplicationDbContextInitialiser
             });
             await _context.SaveChangesAsync();
         }
+
+        if (adminUser != null && !_context.Languages.Any(l => l.UserId == adminUser.Id))
+        {
+            _context.Languages.AddRange(
+                new Language { UserId = adminUser.Id, Name = "English", Level = "Native" },
+                new Language { UserId = adminUser.Id, Name = "Malay", Level = "Fluent" });
+            await _context.SaveChangesAsync();
+        }
+
+        if (standardUser != null && !_context.Languages.Any(l => l.UserId == standardUser.Id))
+        {
+            _context.Languages.AddRange(
+                new Language { UserId = standardUser.Id, Name = "Malay", Level = "Native" },
+                new Language { UserId = standardUser.Id, Name = "English", Level = "Work Proficiency" });
+            await _context.SaveChangesAsync();
+        }
     }
 }

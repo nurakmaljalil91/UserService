@@ -5,6 +5,8 @@ using Domain.Entities;
 using FluentValidation;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
+using Notification.Contracts.Events;
+using Notification.Contracts.Models;
 
 namespace Application.Authentications.Commands;
 
@@ -36,19 +38,27 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, BaseRespo
 {
     private const string DefaultUserRoleName = "User";
     private const string DefaultUserRoleNormalizedName = "USER";
+    private const string SourceService = "UserService";
+    private const string UserRegisteredEventType = "UserRegistered";
 
     private readonly IApplicationDbContext _context;
     private readonly IPasswordHasherService _passwordHasher;
+    private readonly INotificationRequestPublisher _notificationPublisher;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RegisterCommandHandler"/> class.
     /// </summary>
     /// <param name="context">The application database context.</param>
     /// <param name="passwordHasher">The password hashing service.</param>
-    public RegisterCommandHandler(IApplicationDbContext context, IPasswordHasherService passwordHasher)
+    /// <param name="notificationPublisher">The publisher for notification requests.</param>
+    public RegisterCommandHandler(
+        IApplicationDbContext context,
+        IPasswordHasherService passwordHasher,
+        INotificationRequestPublisher notificationPublisher)
     {
         _context = context;
         _passwordHasher = passwordHasher;
+        _notificationPublisher = notificationPublisher;
     }
 
     /// <summary>
@@ -122,7 +132,40 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, BaseRespo
 
         await _context.SaveChangesAsync(cancellationToken);
 
+        await _notificationPublisher.PublishAsync(CreateWelcomeNotification(user, UserRegisteredEventType, user.Id.ToString()), cancellationToken);
+
         return BaseResponse<string>.Ok(user.Id.ToString(), "User registered.");
+    }
+
+    private static NotificationRequestedV1 CreateWelcomeNotification(
+        User user,
+        string sourceEventType,
+        string sourceEventId)
+    {
+        var message = $"Welcome {user.Username}!";
+
+        return new NotificationRequestedV1
+        {
+            SourceService = SourceService,
+            SourceEventType = sourceEventType,
+            SourceEventId = sourceEventId,
+            Title = message,
+            Body = message,
+            Priority = NotificationPriorityV1.Normal,
+            Channels = new[] { NotificationChannelV1.InApp },
+            Recipients = new[]
+            {
+                new NotificationRecipientV1
+                {
+                    RecipientId = user.Id.ToString(),
+                    RecipientType = RecipientTypeV1.Individual,
+                    DisplayName = user.Username,
+                    Email = user.Email,
+                    InAppEnabled = true,
+                    Channels = new[] { NotificationChannelV1.InApp }
+                }
+            }
+        };
     }
 }
 

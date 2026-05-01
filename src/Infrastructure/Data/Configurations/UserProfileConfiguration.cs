@@ -63,6 +63,9 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         builder.Property(p => p.BloodType)
             .HasMaxLength(10);
 
+        builder.Property(p => p.TaxNumber)
+            .HasMaxLength(50);
+
         builder.HasIndex(p => p.UserId).IsUnique();
 
         builder.HasOne(p => p.User)

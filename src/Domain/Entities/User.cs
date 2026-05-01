@@ -155,4 +155,9 @@ public class User : BaseEntity<Guid>
     /// Gets the project records associated with the user.
     /// </summary>
     public IList<Project> Projects { get; private set; } = new List<Project>();
+
+    /// <summary>
+    /// Gets the languages spoken by the user.
+    /// </summary>
+    public IList<Language> Languages { get; private set; } = new List<Language>();
 }

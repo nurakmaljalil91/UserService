@@ -126,6 +126,11 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
             profile.BloodType = request.BloodType.Trim();
         }
 
+        if (request.TaxNumber != null)
+        {
+            profile.TaxNumber = request.TaxNumber.Trim();
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return BaseResponse<UserProfileDto>.Ok(new UserProfileDto(profile), "User profile updated.");
