@@ -30,11 +30,48 @@ public class RegisterCommandHandlerTests
         Assert.True(result.Success);
 
         var user = await context.Users.SingleAsync();
+        var role = await context.Roles.SingleAsync();
+        var userRole = await context.UserRoles.SingleAsync();
         Assert.Equal("newuser", user.Username);
         Assert.Equal("NEWUSER", user.NormalizedUsername);
         Assert.Equal("newuser@example.com", user.Email);
         Assert.Equal("NEWUSER@EXAMPLE.COM", user.NormalizedEmail);
         Assert.Equal("hashed::pass123!", user.PasswordHash);
+        Assert.Equal("User", role.Name);
+        Assert.Equal("USER", role.NormalizedName);
+        Assert.Equal(user.Id, userRole.UserId);
+        Assert.Equal(role.Id, userRole.RoleId);
+    }
+
+    [Fact]
+    public async Task Handle_AssignsExistingUserRole_WhenUserRoleExists()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var role = new Role
+        {
+            Name = "User",
+            NormalizedName = "USER",
+            Description = "Standard user"
+        };
+        context.Roles.Add(role);
+        await context.SaveChangesAsync();
+
+        var handler = new RegisterCommandHandler(context, new TestPasswordHasherService());
+
+        var result = await handler.Handle(new RegisterCommand
+        {
+            Username = "newuser",
+            Email = "newuser@example.com",
+            Password = "pass123!"
+        }, CancellationToken.None);
+
+        Assert.True(result.Success);
+
+        var user = await context.Users.SingleAsync();
+        var userRole = await context.UserRoles.SingleAsync();
+        Assert.Single(context.Roles);
+        Assert.Equal(user.Id, userRole.UserId);
+        Assert.Equal(role.Id, userRole.RoleId);
     }
 
     [Fact]

@@ -34,6 +34,9 @@ public class RegisterCommand : IRequest<BaseResponse<string>>
 /// </summary>
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, BaseResponse<string>>
 {
+    private const string DefaultUserRoleName = "User";
+    private const string DefaultUserRoleNormalizedName = "USER";
+
     private readonly IApplicationDbContext _context;
     private readonly IPasswordHasherService _passwordHasher;
 
@@ -78,6 +81,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, BaseRespo
 
         var user = new User
         {
+            Id = Guid.NewGuid(),
             Username = username,
             NormalizedUsername = normalizedUsername,
             Email = email,
@@ -92,7 +96,30 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, BaseRespo
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password ?? string.Empty);
 
+        var userRole = await _context.Roles.SingleOrDefaultAsync(
+            role => role.NormalizedName == DefaultUserRoleNormalizedName,
+            cancellationToken);
+
+        if (userRole == null)
+        {
+            userRole = new Role
+            {
+                Id = Guid.NewGuid(),
+                Name = DefaultUserRoleName,
+                NormalizedName = DefaultUserRoleNormalizedName,
+                Description = "Standard user"
+            };
+
+            _context.Roles.Add(userRole);
+        }
+
         _context.Users.Add(user);
+        _context.UserRoles.Add(new UserRole
+        {
+            UserId = user.Id,
+            RoleId = userRole.Id
+        });
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return BaseResponse<string>.Ok(user.Id.ToString(), "User registered.");
