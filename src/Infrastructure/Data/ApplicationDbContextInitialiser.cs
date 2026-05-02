@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
 using Application.Common.Interfaces;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 
@@ -11,12 +9,15 @@ namespace Infrastructure.Data;
 
 /// <summary>
 /// Provides methods to initialise and seed the application's database context.
+/// In development the database is dropped and recreated on every startup.
+/// In all other environments (staging, production) pending EF Core migrations are applied.
 /// </summary>
 public class ApplicationDbContextInitialiser
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext _context;
     private readonly IPasswordHasherService _passwordHasher;
+    private readonly IHostEnvironment _environment;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ApplicationDbContextInitialiser"/> class.
@@ -24,26 +25,42 @@ public class ApplicationDbContextInitialiser
     /// <param name="logger">The logger to use for logging database initialisation events.</param>
     /// <param name="context">The application's database context.</param>
     /// <param name="passwordHasher">The password hashing service.</param>
+    /// <param name="environment">The host environment used to determine initialisation strategy.</param>
     public ApplicationDbContextInitialiser(
         ILogger<ApplicationDbContextInitialiser> logger,
         ApplicationDbContext context,
-        IPasswordHasherService passwordHasher)
+        IPasswordHasherService passwordHasher,
+        IHostEnvironment environment)
     {
         _logger = logger;
         _context = context;
         _passwordHasher = passwordHasher;
+        _environment = environment;
     }
 
     /// <summary>
-    /// Ensures that the application's database is deleted and created anew.
+    /// Initialises the database according to the current environment.
+    /// In development the database is deleted and recreated from the current model.
+    /// In all other environments all pending EF Core migrations are applied.
     /// </summary>
     public async Task InitialiseAsync()
     {
         try
         {
-            // See https://jasontaylor.dev/ef-core-database-initialisation-strategies
-            await _context.Database.EnsureDeletedAsync();
-            await _context.Database.EnsureCreatedAsync();
+            if (_environment.IsDevelopment())
+            {
+                // Drop and recreate for a clean dev environment on every startup.
+                // See https://jasontaylor.dev/ef-core-database-initialisation-strategies
+                await _context.Database.EnsureDeletedAsync();
+                await _context.Database.EnsureCreatedAsync();
+            }
+            else
+            {
+                // Apply any pending migrations on startup. Migration files are compiled
+                // into the app — no external DB access or manual dotnet ef commands needed
+                // in production.
+                await _context.Database.MigrateAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -52,13 +69,22 @@ public class ApplicationDbContextInitialiser
     }
 
     /// <summary>
-    /// Seeds the application's database with initial data if necessary.
+    /// Seeds the application's database with initial data.
+    /// Essential data (roles, permissions, groups, admin user and their assignments) is seeded
+    /// in all environments. Development-only data (standard user account, profiles, skills,
+    /// education, work experiences, projects, languages, addresses, contacts, consents, and
+    /// preferences) is seeded only when running in the Development environment.
     /// </summary>
     public async Task SeedAsync()
     {
         try
         {
-            await TrySeedAsync();
+            await SeedEssentialAsync();
+
+            if (_environment.IsDevelopment())
+            {
+                await TrySeedAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -67,48 +93,15 @@ public class ApplicationDbContextInitialiser
     }
 
     /// <summary>
-    /// Attempts to seed the application's database with default data if necessary.
+    /// Seeds the essential data required for the application to function in any environment.
+    /// This includes the Admin and User roles, all permissions with their role assignments,
+    /// the Administrators and Default groups with their role assignments, and the admin user
+    /// with their role and group memberships.
+    /// All operations are idempotent — they check for existing records before inserting.
     /// </summary>
-    public async Task TrySeedAsync()
+    public async Task SeedEssentialAsync()
     {
-        if (!_context.Users.Any())
-        {
-            var admin = new User
-            {
-                Username = "admin",
-                NormalizedUsername = "ADMIN",
-                Email = "admin@example.com",
-                NormalizedEmail = "ADMIN@EXAMPLE.COM",
-                EmailConfirm = true,
-                PhoneNumberConfirm = false,
-                TwoFactorEnabled = false,
-                AccessFailedCount = 0,
-                IsLocked = false,
-                IsDeleted = false
-            };
-            admin.PasswordHash = _passwordHasher.HashPassword(admin, "Admin123#");
-
-            var user = new User
-            {
-                Username = "user",
-                NormalizedUsername = "USER",
-                Email = "user@example.com",
-                NormalizedEmail = "USER@EXAMPLE.COM",
-                EmailConfirm = true,
-                PhoneNumberConfirm = false,
-                TwoFactorEnabled = false,
-                AccessFailedCount = 0,
-                IsLocked = false,
-                IsDeleted = false
-            };
-            user.PasswordHash = _passwordHasher.HashPassword(user, "User123#");
-
-            _context.Users.AddRange(admin, user);
-
-            await _context.SaveChangesAsync();
-        }
-
-        if (!_context.Roles.Any())
+        if (!await _context.Roles.AnyAsync())
         {
             _context.Roles.AddRange(
                 new Role
@@ -127,7 +120,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.Permissions.Any())
+        if (!await _context.Permissions.AnyAsync())
         {
             _context.Permissions.AddRange(
                 new Permission
@@ -170,7 +163,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.Groups.Any())
+        if (!await _context.Groups.AnyAsync())
         {
             _context.Groups.AddRange(
                 new Group
@@ -189,30 +182,17 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        var adminUser = _context.Users.FirstOrDefault(u => u.NormalizedUsername == "ADMIN");
-        var standardUser = _context.Users.FirstOrDefault(u => u.NormalizedUsername == "USER");
-        var adminRole = _context.Roles.FirstOrDefault(r => r.NormalizedName == "ADMIN");
-        var userRole = _context.Roles.FirstOrDefault(r => r.NormalizedName == "USER");
-        var adminGroup = _context.Groups.FirstOrDefault(g => g.NormalizedName == "ADMINISTRATORS");
-        var defaultGroup = _context.Groups.FirstOrDefault(g => g.NormalizedName == "DEFAULT");
-        var testersGroup = _context.Groups.FirstOrDefault(g => g.NormalizedName == "TESTERS");
+        var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.NormalizedName == "ADMIN");
+        var userRole = await _context.Roles.FirstOrDefaultAsync(r => r.NormalizedName == "USER");
+        var adminGroup = await _context.Groups.FirstOrDefaultAsync(g => g.NormalizedName == "ADMINISTRATORS");
+        var defaultGroup = await _context.Groups.FirstOrDefaultAsync(g => g.NormalizedName == "DEFAULT");
 
-        if (testersGroup == null)
+        if (!await _context.RolePermissions.AnyAsync() && adminRole != null && userRole != null)
         {
-            testersGroup = new Group
-            {
-                Name = "Testers",
-                NormalizedName = "TESTERS",
-                Description = "Quality assurance group"
-            };
-            _context.Groups.Add(testersGroup);
-            await _context.SaveChangesAsync();
-        }
-
-        if (!_context.RolePermissions.Any() && adminRole != null && userRole != null)
-        {
-            var permissions = _context.Permissions.ToList();
-            var readPermissions = permissions.Where(p => p.NormalizedName != null && p.NormalizedName.EndsWith(".READ")).ToList();
+            var permissions = await _context.Permissions.ToListAsync();
+            var readPermissions = permissions
+                .Where(p => p.NormalizedName != null && p.NormalizedName.EndsWith(".READ"))
+                .ToList();
 
             foreach (var permission in permissions)
             {
@@ -235,7 +215,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.GroupRoles.Any() && adminGroup != null && defaultGroup != null && adminRole != null && userRole != null)
+        if (!await _context.GroupRoles.AnyAsync() && adminGroup != null && defaultGroup != null && adminRole != null && userRole != null)
         {
             _context.GroupRoles.AddRange(
                 new GroupRole
@@ -252,41 +232,123 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.UserRoles.Any() && adminUser != null && standardUser != null && adminRole != null && userRole != null)
+        if (!await _context.Users.AnyAsync(u => u.NormalizedUsername == "ADMIN"))
         {
-            _context.UserRoles.AddRange(
-                new UserRole
-                {
-                    UserId = adminUser.Id,
-                    RoleId = adminRole.Id
-                },
-                new UserRole
-                {
-                    UserId = standardUser.Id,
-                    RoleId = userRole.Id
-                });
+            var admin = new User
+            {
+                Username = "admin",
+                NormalizedUsername = "ADMIN",
+                Email = "admin@example.com",
+                NormalizedEmail = "ADMIN@EXAMPLE.COM",
+                EmailConfirm = true,
+                PhoneNumberConfirm = false,
+                TwoFactorEnabled = false,
+                AccessFailedCount = 0,
+                IsLocked = false,
+                IsDeleted = false
+            };
+            admin.PasswordHash = _passwordHasher.HashPassword(admin, "Admin123#");
+
+            _context.Users.Add(admin);
+            await _context.SaveChangesAsync();
+        }
+
+        var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.NormalizedUsername == "ADMIN");
+
+        if (adminUser != null && adminRole != null && !await _context.UserRoles.AnyAsync(ur => ur.UserId == adminUser.Id && ur.RoleId == adminRole.Id))
+        {
+            _context.UserRoles.Add(new UserRole
+            {
+                UserId = adminUser.Id,
+                RoleId = adminRole.Id
+            });
 
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.UserGroups.Any() && adminUser != null && standardUser != null && adminGroup != null && defaultGroup != null)
+        if (adminUser != null && adminGroup != null && !await _context.UserGroups.AnyAsync(ug => ug.UserId == adminUser.Id && ug.GroupId == adminGroup.Id))
         {
-            _context.UserGroups.AddRange(
-                new UserGroup
-                {
-                    UserId = adminUser.Id,
-                    GroupId = adminGroup.Id
-                },
-                new UserGroup
-                {
-                    UserId = standardUser.Id,
-                    GroupId = defaultGroup.Id
-                });
+            _context.UserGroups.Add(new UserGroup
+            {
+                UserId = adminUser.Id,
+                GroupId = adminGroup.Id
+            });
+
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>
+    /// Seeds development-only data: the standard "user" account and all associated profile
+    /// data including skills, education, work experiences, projects, languages, addresses,
+    /// contact methods, consents, and preferences for both the admin and standard user.
+    /// This method is called only in the Development environment.
+    /// All operations are idempotent — they check for existing records before inserting.
+    /// </summary>
+    public async Task TrySeedAsync()
+    {
+        if (!await _context.Users.AnyAsync(u => u.NormalizedUsername == "USER"))
+        {
+            var user = new User
+            {
+                Username = "user",
+                NormalizedUsername = "USER",
+                Email = "user@example.com",
+                NormalizedEmail = "USER@EXAMPLE.COM",
+                EmailConfirm = true,
+                PhoneNumberConfirm = false,
+                TwoFactorEnabled = false,
+                AccessFailedCount = 0,
+                IsLocked = false,
+                IsDeleted = false
+            };
+            user.PasswordHash = _passwordHasher.HashPassword(user, "User123#");
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
+
+        var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.NormalizedUsername == "ADMIN");
+        var standardUser = await _context.Users.FirstOrDefaultAsync(u => u.NormalizedUsername == "USER");
+        var userRole = await _context.Roles.FirstOrDefaultAsync(r => r.NormalizedName == "USER");
+        var defaultGroup = await _context.Groups.FirstOrDefaultAsync(g => g.NormalizedName == "DEFAULT");
+
+        var testersGroup = await _context.Groups.FirstOrDefaultAsync(g => g.NormalizedName == "TESTERS");
+        if (testersGroup == null)
+        {
+            testersGroup = new Group
+            {
+                Name = "Testers",
+                NormalizedName = "TESTERS",
+                Description = "Quality assurance group"
+            };
+            _context.Groups.Add(testersGroup);
+            await _context.SaveChangesAsync();
+        }
+
+        if (standardUser != null && userRole != null && !await _context.UserRoles.AnyAsync(ur => ur.UserId == standardUser.Id && ur.RoleId == userRole.Id))
+        {
+            _context.UserRoles.Add(new UserRole
+            {
+                UserId = standardUser.Id,
+                RoleId = userRole.Id
+            });
 
             await _context.SaveChangesAsync();
         }
 
-        if (testersGroup != null && standardUser != null && !_context.UserGroups.Any(ug => ug.UserId == standardUser.Id && ug.GroupId == testersGroup.Id))
+        if (standardUser != null && defaultGroup != null && !await _context.UserGroups.AnyAsync(ug => ug.UserId == standardUser.Id && ug.GroupId == defaultGroup.Id))
+        {
+            _context.UserGroups.Add(new UserGroup
+            {
+                UserId = standardUser.Id,
+                GroupId = defaultGroup.Id
+            });
+
+            await _context.SaveChangesAsync();
+        }
+
+        if (testersGroup != null && standardUser != null && !await _context.UserGroups.AnyAsync(ug => ug.UserId == standardUser.Id && ug.GroupId == testersGroup.Id))
         {
             _context.UserGroups.Add(new UserGroup
             {
@@ -296,7 +358,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (adminUser != null && !_context.UserProfiles.Any(p => p.UserId == adminUser.Id))
+        if (adminUser != null && !await _context.UserProfiles.AnyAsync(p => p.UserId == adminUser.Id))
         {
             _context.UserProfiles.Add(new UserProfile
             {
@@ -313,7 +375,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (standardUser != null && !_context.UserProfiles.Any(p => p.UserId == standardUser.Id))
+        if (standardUser != null && !await _context.UserProfiles.AnyAsync(p => p.UserId == standardUser.Id))
         {
             _context.UserProfiles.Add(new UserProfile
             {
@@ -330,7 +392,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.Addresses.Any() && adminUser != null && standardUser != null)
+        if (!await _context.Addresses.AnyAsync() && adminUser != null && standardUser != null)
         {
             _context.Addresses.AddRange(
                 new Address
@@ -361,7 +423,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.ContactMethods.Any() && adminUser != null && standardUser != null)
+        if (!await _context.ContactMethods.AnyAsync() && adminUser != null && standardUser != null)
         {
             _context.ContactMethods.AddRange(
                 new ContactMethod
@@ -386,7 +448,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.Consents.Any() && adminUser != null && standardUser != null)
+        if (!await _context.Consents.AnyAsync() && adminUser != null && standardUser != null)
         {
             var grantedAt = Instant.FromUtc(2024, 1, 1, 0, 0);
             _context.Consents.AddRange(
@@ -412,7 +474,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.UserPreferences.Any() && adminUser != null && standardUser != null)
+        if (!await _context.UserPreferences.AnyAsync() && adminUser != null && standardUser != null)
         {
             _context.UserPreferences.AddRange(
                 new UserPreference
@@ -431,7 +493,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (adminUser != null && !_context.Skills.Any(s => s.UserId == adminUser.Id))
+        if (adminUser != null && !await _context.Skills.AnyAsync(s => s.UserId == adminUser.Id))
         {
             _context.Skills.AddRange(
                 new Skill { UserId = adminUser.Id, Name = "Leadership", Proficiency = "Expert", YearsOfExperience = 10 },
@@ -440,7 +502,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (standardUser != null && !_context.Skills.Any(s => s.UserId == standardUser.Id))
+        if (standardUser != null && !await _context.Skills.AnyAsync(s => s.UserId == standardUser.Id))
         {
             _context.Skills.AddRange(
                 new Skill { UserId = standardUser.Id, Name = "Angular", Proficiency = "Intermediate", YearsOfExperience = 3 },
@@ -449,7 +511,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (adminUser != null && !_context.Educations.Any(e => e.UserId == adminUser.Id))
+        if (adminUser != null && !await _context.Educations.AnyAsync(e => e.UserId == adminUser.Id))
         {
             _context.Educations.Add(new Education
             {
@@ -463,7 +525,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (standardUser != null && !_context.Educations.Any(e => e.UserId == standardUser.Id))
+        if (standardUser != null && !await _context.Educations.AnyAsync(e => e.UserId == standardUser.Id))
         {
             _context.Educations.Add(new Education
             {
@@ -477,7 +539,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (adminUser != null && !_context.WorkExperiences.Any(w => w.UserId == adminUser.Id))
+        if (adminUser != null && !await _context.WorkExperiences.AnyAsync(w => w.UserId == adminUser.Id))
         {
             _context.WorkExperiences.Add(new WorkExperience
             {
@@ -491,7 +553,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (standardUser != null && !_context.WorkExperiences.Any(w => w.UserId == standardUser.Id))
+        if (standardUser != null && !await _context.WorkExperiences.AnyAsync(w => w.UserId == standardUser.Id))
         {
             _context.WorkExperiences.Add(new WorkExperience
             {
@@ -505,7 +567,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (adminUser != null && !_context.Projects.Any(p => p.UserId == adminUser.Id))
+        if (adminUser != null && !await _context.Projects.AnyAsync(p => p.UserId == adminUser.Id))
         {
             _context.Projects.Add(new Project
             {
@@ -518,7 +580,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (standardUser != null && !_context.Projects.Any(p => p.UserId == standardUser.Id))
+        if (standardUser != null && !await _context.Projects.AnyAsync(p => p.UserId == standardUser.Id))
         {
             _context.Projects.Add(new Project
             {
@@ -531,7 +593,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (adminUser != null && !_context.Languages.Any(l => l.UserId == adminUser.Id))
+        if (adminUser != null && !await _context.Languages.AnyAsync(l => l.UserId == adminUser.Id))
         {
             _context.Languages.AddRange(
                 new Language { UserId = adminUser.Id, Name = "English", Level = "Native" },
@@ -539,7 +601,7 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (standardUser != null && !_context.Languages.Any(l => l.UserId == standardUser.Id))
+        if (standardUser != null && !await _context.Languages.AnyAsync(l => l.UserId == standardUser.Id))
         {
             _context.Languages.AddRange(
                 new Language { UserId = standardUser.Id, Name = "Malay", Level = "Native" },

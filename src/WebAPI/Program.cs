@@ -53,14 +53,16 @@ try
 
         // Add ReDoc UI to interact with the document
         app.UseReDoc(options => { options.Path = "/redoc"; });
+    }
 
-        // Initialize and seed database
-        using (var scope = app.Services.CreateScope())
-        {
-            var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
-            await initializer.InitialiseAsync();
-            await initializer.SeedAsync();
-        }
+    // Initialize and seed database (runs in all environments)
+    // Development: drops + recreates schema, seeds full dataset
+    // Production/Staging: applies pending migrations, seeds essential data only
+    using (var scope = app.Services.CreateScope())
+    {
+        var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
+        await initializer.InitialiseAsync();
+        await initializer.SeedAsync();
     }
 
     app.UseHttpsRedirection();

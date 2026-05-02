@@ -7,6 +7,8 @@ using Infrastructure.Data.Interceptors;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure.UnitTests;
 
@@ -24,6 +26,7 @@ public class DependencyInjectionTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddScoped<IUser>(_ => new TestUser("tester"));
+        services.AddSingleton<IHostEnvironment>(new TestHostEnvironment());
         var configuration = BuildConfiguration(new Dictionary<string, string?>
         {
             ["UseInMemoryDatabase"] = "true"
@@ -82,6 +85,26 @@ public class DependencyInjectionTests
         public string? Username { get; }
 
         public List<string> GetRoles() => new();
+    }
+
+    /// <summary>
+    /// Minimal <see cref="IHostEnvironment"/> stub that reports the Development environment,
+    /// used to satisfy the <see cref="ApplicationDbContextInitialiser"/> constructor without
+    /// introducing a mocking framework dependency.
+    /// </summary>
+    private sealed class TestHostEnvironment : IHostEnvironment
+    {
+        /// <inheritdoc />
+        public string EnvironmentName { get; set; } = Environments.Development;
+
+        /// <inheritdoc />
+        public string ApplicationName { get; set; } = "Tests";
+
+        /// <inheritdoc />
+        public string ContentRootPath { get; set; } = Directory.GetCurrentDirectory();
+
+        /// <inheritdoc />
+        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
     }
 }
 #nullable restore
