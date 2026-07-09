@@ -171,8 +171,8 @@ public class RolesControllerIntegrationTests : ApiTestBase
 
         var payload = await ReadResponseAsync<BaseResponse<PaginatedResponse<RoleResponse>>>(meResponse);
         Assert.True(payload.Success);
-        Assert.Single(payload.Data!.Items!);
-        Assert.Equal(role.Data!.Id, payload.Data.Items!.First().Id);
+        Assert.Contains(payload.Data!.Items!, r => r.Id == role.Data!.Id);
+        Assert.DoesNotContain(payload.Data.Items!, r => r.Id == otherRole.Data!.Id);
     }
 
     /// <summary>

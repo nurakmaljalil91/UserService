@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using Domain.Common;
@@ -35,7 +36,8 @@ public class UserProfilesControllerIntegrationTests : ApiTestBase
         var listPayload = await ReadResponseAsync<BaseResponse<PaginatedResponse<UserProfileResponse>>>(listResponse);
         Assert.True(listPayload.Success);
 
-        var createResponse = await client.PostAsJsonAsync("/api/UserProfiles", new
+        // Creating a user already provisions a blank profile, so creating a second one must be rejected.
+        var duplicateCreateResponse = await client.PostAsJsonAsync("/api/UserProfiles", new
         {
             UserId = userId,
             DisplayName = "Integration Profile",
@@ -44,13 +46,9 @@ public class UserProfilesControllerIntegrationTests : ApiTestBase
             DateOfBirth = "1995-02-03",
             Bio = "Integration bio"
         });
-        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, duplicateCreateResponse.StatusCode);
 
-        var created = await ReadResponseAsync<BaseResponse<UserProfileResponse>>(createResponse);
-        Assert.True(created.Success);
-        Assert.NotNull(created.Data);
-
-        var profileId = created.Data!.Id;
+        var profileId = listPayload.Data!.Items!.Single(p => p.UserId == userId).Id;
 
         var getResponse = await client.GetAsync($"/api/UserProfiles/{profileId}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);

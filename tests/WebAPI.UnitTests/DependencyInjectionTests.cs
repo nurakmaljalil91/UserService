@@ -23,6 +23,7 @@ public class DependencyInjectionTests
     public void AddWebAPIServices_RegistersCoreServices()
     {
         var services = new ServiceCollection();
+        services.AddLogging();
         var configuration = BuildConfiguration(new Dictionary<string, string?>
         {
             ["Jwt:Issuer"] = "issuer",

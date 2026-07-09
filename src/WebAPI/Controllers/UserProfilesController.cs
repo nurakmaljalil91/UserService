@@ -72,7 +72,9 @@ public sealed class UserProfilesController : ControllerBase
     public async Task<ActionResult<BaseResponse<UserProfileDto>>> CreateUserProfile([FromBody] CreateUserProfileCommand command)
     {
         var result = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetUserProfileById), new { id = result.Data?.Id }, result);
+        return result.Success
+            ? CreatedAtAction(nameof(GetUserProfileById), new { id = result.Data?.Id }, result)
+            : BadRequest(result);
     }
 
     /// <summary>

@@ -14,6 +14,17 @@ public sealed class ExceptionHandlingMiddleware: IMiddleware
     private static readonly JsonSerializerOptions JsonOptions =
         new(JsonSerializerDefaults.Web);
 
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ExceptionHandlingMiddleware"/> class.
+    /// </summary>
+    /// <param name="logger">The logger used to record unhandled exceptions.</param>
+    public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger)
+    {
+        _logger = logger;
+    }
+
     /// <inheritdoc />
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -89,8 +100,10 @@ public sealed class ExceptionHandlingMiddleware: IMiddleware
             await context.Response.WriteAsync(
                 JsonSerializer.Serialize(response, JsonOptions));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Unhandled exception while processing {Method} {Path}", context.Request.Method, context.Request.Path);
+
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
 

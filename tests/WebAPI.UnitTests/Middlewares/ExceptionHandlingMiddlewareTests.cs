@@ -4,6 +4,7 @@ using Application.Common.Exceptions;
 using Domain.Common;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using WebAPI.Middlewares;
 
 namespace WebAPI.UnitTests.Middlewares;
@@ -22,7 +23,7 @@ public class ExceptionHandlingMiddlewareTests
         {
             new ValidationFailure("Title", "Title is required.")
         };
-        var middleware = new ExceptionHandlingMiddleware();
+        var middleware = new ExceptionHandlingMiddleware(NullLogger<ExceptionHandlingMiddleware>.Instance);
         var context = CreateContext();
 
         await middleware.InvokeAsync(context, _ => throw new ValidationException(failures));
@@ -36,7 +37,7 @@ public class ExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_HandlesNotFoundException()
     {
-        var middleware = new ExceptionHandlingMiddleware();
+        var middleware = new ExceptionHandlingMiddleware(NullLogger<ExceptionHandlingMiddleware>.Instance);
         var context = CreateContext();
 
         await middleware.InvokeAsync(context, _ => throw new NotFoundException("Missing"));
@@ -49,7 +50,7 @@ public class ExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_HandlesForbiddenAccessException()
     {
-        var middleware = new ExceptionHandlingMiddleware();
+        var middleware = new ExceptionHandlingMiddleware(NullLogger<ExceptionHandlingMiddleware>.Instance);
         var context = CreateContext();
 
         await middleware.InvokeAsync(context, _ => throw new ForbiddenAccessException());
@@ -62,7 +63,7 @@ public class ExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_HandlesUnknownException()
     {
-        var middleware = new ExceptionHandlingMiddleware();
+        var middleware = new ExceptionHandlingMiddleware(NullLogger<ExceptionHandlingMiddleware>.Instance);
         var context = CreateContext();
 
         await middleware.InvokeAsync(context, _ => throw new InvalidOperationException("boom"));
