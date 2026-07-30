@@ -4,6 +4,7 @@ using Application.Permissions.Models;
 using Domain.Common;
 using Domain.Entities;
 using Mediator;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Permissions.Commands;
 
@@ -33,6 +34,15 @@ public class CreatePermissionCommandHandler : IRequestHandler<CreatePermissionCo
     {
         var name = request.Name!.Trim();
         var normalizedName = name.ToUpperInvariant();
+
+        var exists = await _context.Permissions.AnyAsync(
+            p => p.NormalizedName == normalizedName,
+            cancellationToken);
+
+        if (exists)
+        {
+            return BaseResponse<PermissionDto>.Fail("Permission name already exists.");
+        }
 
         var permission = new Permission
         {
