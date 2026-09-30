@@ -105,6 +105,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, BaseRespo
         };
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password ?? string.Empty);
+        user.Profile = new UserProfile();
 
         var userRole = await _context.Roles.SingleOrDefaultAsync(
             role => role.NormalizedName == DefaultUserRoleNormalizedName,

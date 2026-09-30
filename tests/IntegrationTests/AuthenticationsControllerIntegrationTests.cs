@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using Application.Authentications.Models;
 using Domain.Common;
 using WebAPI.Controllers;
@@ -56,5 +57,9 @@ public class AuthenticationsControllerIntegrationTests : ApiTestBase
         Assert.NotNull(payload.Data);
         Assert.False(string.IsNullOrWhiteSpace(payload.Data!.Token));
         Assert.True(payload.Data!.ExpiresAt > DateTime.UtcNow.AddMinutes(-1));
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", payload.Data.Token);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/UserSession")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/UserProfiles/me")).StatusCode);
     }
 }

@@ -29,12 +29,14 @@ public class UserSessionControllerIntegrationTests : ApiTestBase
         using var client = authenticated.Client;
         var userId = authenticated.UserId;
 
-        var createProfileResponse = await client.PostAsJsonAsync("/api/UserProfiles", new
+        var profileResponse = await client.GetAsync("/api/UserProfiles/me");
+        Assert.Equal(HttpStatusCode.OK, profileResponse.StatusCode);
+        var profile = await ReadResponseAsync<BaseResponse<UserProfileResponse>>(profileResponse);
+        var updateProfileResponse = await client.PatchAsync($"/api/UserProfiles/{profile.Data!.Id}", JsonContent.Create(new
         {
-            UserId = userId,
             DisplayName = "Session User"
-        });
-        Assert.Equal(HttpStatusCode.Created, createProfileResponse.StatusCode);
+        }));
+        Assert.Equal(HttpStatusCode.OK, updateProfileResponse.StatusCode);
 
         var createPreferenceResponse = await client.PostAsJsonAsync("/api/UserPreferences", new
         {
@@ -56,15 +58,17 @@ public class UserSessionControllerIntegrationTests : ApiTestBase
     }
 
     /// <summary>
-    /// Ensures the user session endpoint returns not found when the profile is missing.
+    /// Ensures a newly registered user has a profile in the session.
     /// </summary>
     [Fact]
-    public async Task GetUserSession_WhenProfileMissing_ReturnsNotFound()
+    public async Task GetUserSession_AfterRegistration_ReturnsDefaultProfile()
     {
         using var client = await CreateAuthenticatedClientAsync();
 
         var sessionResponse = await client.GetAsync("/api/UserSession");
 
-        Assert.Equal(HttpStatusCode.NotFound, sessionResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, sessionResponse.StatusCode);
+        var payload = await ReadResponseAsync<BaseResponse<UserSessionResponse>>(sessionResponse);
+        Assert.NotNull(payload.Data?.Profile);
     }
 }

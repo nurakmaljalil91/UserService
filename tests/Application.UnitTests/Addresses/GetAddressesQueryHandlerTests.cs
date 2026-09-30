@@ -40,6 +40,30 @@ public class GetAddressesQueryHandlerTests
     }
 
     /// <summary>
+    /// Ensures a user filter excludes other users' addresses.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WithUserId_ReturnsOnlyThatUsersAddresses()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var user = CreateUser();
+        var otherUser = CreateUser();
+        context.Users.AddRange(user, otherUser);
+        context.Addresses.AddRange(
+            new Address { User = user, Line1 = "123 Main" },
+            new Address { User = otherUser, Line1 = "456 Side" });
+        await context.SaveChangesAsync();
+
+        var handler = new GetAddressesQueryHandler(context);
+        var result = await handler.Handle(new GetAddressesQuery { UserId = user.Id }, CancellationToken.None);
+
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Equal(1, result.Data!.TotalCount);
+        Assert.Equal(user.Id, Assert.Single(result.Data.Items!).UserId);
+    }
+
+    /// <summary>
     /// Creates a valid user entity for test scenarios.
     /// </summary>
     /// <returns>A configured <see cref="User"/> entity.</returns>

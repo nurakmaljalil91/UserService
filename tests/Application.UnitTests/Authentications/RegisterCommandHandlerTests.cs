@@ -33,6 +33,7 @@ public class RegisterCommandHandlerTests
         var user = await context.Users.SingleAsync();
         var role = await context.Roles.SingleAsync();
         var userRole = await context.UserRoles.SingleAsync();
+        var profile = await context.UserProfiles.SingleAsync();
         Assert.Equal("newuser", user.Username);
         Assert.Equal("NEWUSER", user.NormalizedUsername);
         Assert.Equal("newuser@example.com", user.Email);
@@ -42,6 +43,7 @@ public class RegisterCommandHandlerTests
         Assert.Equal("USER", role.NormalizedName);
         Assert.Equal(user.Id, userRole.UserId);
         Assert.Equal(role.Id, userRole.RoleId);
+        Assert.Equal(user.Id, profile.UserId);
 
         var notification = Assert.Single(publisher.Notifications);
         Assert.Equal("UserService", notification.SourceService);

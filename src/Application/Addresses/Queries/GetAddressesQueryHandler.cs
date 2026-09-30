@@ -35,8 +35,14 @@ public class GetAddressesQueryHandler : IRequestHandler<GetAddressesQuery, BaseR
         GetAddressesQuery request,
         CancellationToken cancellationToken)
     {
-        var query = _context.Addresses
-            .AsQueryable()
+        var query = _context.Addresses.AsQueryable();
+
+        if (request.UserId.HasValue)
+        {
+            query = query.Where(address => address.UserId == request.UserId.Value);
+        }
+
+        query = query
             .ApplyFilters(request.Filter)
             .ApplySorting(request.SortBy, request.Descending);
 

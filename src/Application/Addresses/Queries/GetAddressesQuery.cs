@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using Application.Addresses.Models;
 using Application.Common.Models;
 using Domain.Common;
@@ -9,4 +10,10 @@ namespace Application.Addresses.Queries;
 /// <summary>
 /// Represents a paginated request to retrieve addresses with optional filtering and sorting.
 /// </summary>
-public class GetAddressesQuery : PaginatedRequest, IRequest<BaseResponse<PaginatedEnumerable<AddressDto>>>;
+public class GetAddressesQuery : PaginatedRequest, IRequest<BaseResponse<PaginatedEnumerable<AddressDto>>>
+{
+    /// <summary>
+    /// Gets or sets the user identifier to filter by.
+    /// </summary>
+    public Guid? UserId { get; set; }
+}

@@ -91,13 +91,15 @@ public class UserProfilesControllerIntegrationTests : ApiTestBase
         using var client = authenticated.Client;
         var userId = authenticated.UserId;
 
-        var createResponse = await client.PostAsJsonAsync("/api/UserProfiles", new
+        var initialResponse = await client.GetAsync("/api/UserProfiles/me");
+        Assert.Equal(HttpStatusCode.OK, initialResponse.StatusCode);
+        var initialProfile = await ReadResponseAsync<BaseResponse<UserProfileResponse>>(initialResponse);
+        var updateResponse = await client.PatchAsync($"/api/UserProfiles/{initialProfile.Data!.Id}", JsonContent.Create(new
         {
-            UserId = userId,
             DisplayName = "Self Profile",
             Bio = "Current user profile"
-        });
-        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        }));
+        Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
 
         var getResponse = await client.GetAsync("/api/UserProfiles/me");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);

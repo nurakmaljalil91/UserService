@@ -21,6 +21,9 @@ using Application.Consents.Queries;
 using Application.ContactMethods.Commands;
 using Application.ContactMethods.Models;
 using Application.ContactMethods.Queries;
+using Application.Languages.Commands;
+using Application.Languages.Models;
+using Application.Languages.Queries;
 using Application.Permissions.Commands;
 using Application.Permissions.Models;
 using Application.Permissions.Queries;
@@ -83,6 +86,11 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<CreateAddressCommand, BaseResponse<AddressDto>>, CreateAddressCommandHandler>();
         services.AddScoped<IRequestHandler<UpdateAddressCommand, BaseResponse<AddressDto>>, UpdateAddressCommandHandler>();
         services.AddScoped<IRequestHandler<DeleteAddressCommand, BaseResponse<string>>, DeleteAddressCommandHandler>();
+        services.AddScoped<IRequestHandler<GetLanguagesQuery, BaseResponse<PaginatedEnumerable<LanguageDto>>>, GetLanguagesQueryHandler>();
+        services.AddScoped<IRequestHandler<GetLanguageByIdQuery, BaseResponse<LanguageDto>>, GetLanguageByIdQueryHandler>();
+        services.AddScoped<IRequestHandler<CreateLanguageCommand, BaseResponse<LanguageDto>>, CreateLanguageCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateLanguageCommand, BaseResponse<LanguageDto>>, UpdateLanguageCommandHandler>();
+        services.AddScoped<IRequestHandler<DeleteLanguageCommand, BaseResponse<string>>, DeleteLanguageCommandHandler>();
         services.AddScoped<IRequestHandler<GetConsentsQuery, BaseResponse<PaginatedEnumerable<ConsentDto>>>,
             GetConsentsQueryHandler>();
         services.AddScoped<IRequestHandler<GetMyConsentsQuery, BaseResponse<PaginatedEnumerable<ConsentDto>>>,
