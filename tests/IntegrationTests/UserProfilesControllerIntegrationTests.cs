@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using Domain.Common;
@@ -26,15 +25,16 @@ public class UserProfilesControllerIntegrationTests : ApiTestBase
     [Fact]
     public async Task UserProfiles_FullFlow_Works()
     {
-        using var client = await CreateAuthenticatedClientAsync();
-
-        var userId = await CreateUserAsync(client);
+        var authenticated = await CreateAuthenticatedClientWithUserAsync();
+        using var client = authenticated.Client;
+        var userId = authenticated.UserId;
 
         var listResponse = await client.GetAsync("/api/UserProfiles?page=1&total=10");
         Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
 
         var listPayload = await ReadResponseAsync<BaseResponse<PaginatedResponse<UserProfileResponse>>>(listResponse);
         Assert.True(listPayload.Success);
+        Assert.NotNull(listPayload.Data);
 
         // Creating a user already provisions a blank profile, so creating a second one must be rejected.
         var duplicateCreateResponse = await client.PostAsJsonAsync("/api/UserProfiles", new
@@ -48,7 +48,10 @@ public class UserProfilesControllerIntegrationTests : ApiTestBase
         });
         Assert.Equal(HttpStatusCode.BadRequest, duplicateCreateResponse.StatusCode);
 
-        var profileId = listPayload.Data!.Items!.Single(p => p.UserId == userId).Id;
+        var ownProfileResponse = await client.GetAsync("/api/UserProfiles/me");
+        Assert.Equal(HttpStatusCode.OK, ownProfileResponse.StatusCode);
+        var ownProfile = await ReadResponseAsync<BaseResponse<UserProfileResponse>>(ownProfileResponse);
+        var profileId = ownProfile.Data!.Id;
 
         var getResponse = await client.GetAsync($"/api/UserProfiles/{profileId}");
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
@@ -108,28 +111,5 @@ public class UserProfilesControllerIntegrationTests : ApiTestBase
         Assert.True(payload.Success);
         Assert.Equal(userId, payload.Data!.UserId);
         Assert.Equal("Self Profile", payload.Data!.DisplayName);
-    }
-
-    /// <summary>
-    /// Creates a user for integration testing and returns the identifier.
-    /// </summary>
-    /// <param name="client">The HTTP client used to call the API.</param>
-    /// <returns>The created user identifier.</returns>
-    private static async Task<Guid> CreateUserAsync(HttpClient client)
-    {
-        var unique = Guid.NewGuid().ToString("N");
-        var createUserResponse = await client.PostAsJsonAsync("/api/Users", new
-        {
-            Username = $"profile-user-{unique}",
-            Email = $"profile-{unique}@example.com",
-            Password = "Integration123!"
-        });
-        Assert.Equal(HttpStatusCode.Created, createUserResponse.StatusCode);
-
-        var created = await ReadResponseAsync<BaseResponse<UserResponse>>(createUserResponse);
-        Assert.True(created.Success);
-        Assert.NotNull(created.Data);
-
-        return created.Data!.Id;
     }
 }
