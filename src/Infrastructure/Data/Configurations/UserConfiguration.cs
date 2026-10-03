@@ -62,6 +62,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(false)
             .IsRequired();
 
+        builder.Property(u => u.OnboardingStatus)
+            .HasConversion<string>()
+            .HasMaxLength(16)
+            .HasDefaultValue(UserOnboardingStatus.Completed)
+            // Pending is enum zero; keep EF from omitting it on insert.
+            .HasSentinel((UserOnboardingStatus)(-1))
+            .IsConcurrencyToken()
+            .IsRequired();
+
         builder.Property(u => u.PasswordHash)
             .HasMaxLength(512)
             .IsRequired();

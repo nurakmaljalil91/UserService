@@ -150,7 +150,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
         });
 
         await RecordLoginAttemptAsync(user.Id, identifier, true, null);
-        await _context.SaveChangesAsync(cancellationToken);
+        var showFirstLoginWelcome = await _context.SaveSuccessfulLoginAsync(user.Id, cancellationToken);
 
         if (isFirstSuccessfulLogin)
         {
@@ -164,7 +164,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, BaseResponse<Lo
                 jwtToken.Token,
                 jwtToken.ExpiresAt,
                 refreshToken,
-                refreshExpiresAt.ToDateTimeUtc()),
+                refreshExpiresAt.ToDateTimeUtc(),
+                showFirstLoginWelcome),
             "Login successful.");
     }
 

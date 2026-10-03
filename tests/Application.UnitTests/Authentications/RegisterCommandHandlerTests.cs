@@ -39,6 +39,7 @@ public class RegisterCommandHandlerTests
         Assert.Equal("newuser@example.com", user.Email);
         Assert.Equal("NEWUSER@EXAMPLE.COM", user.NormalizedEmail);
         Assert.Equal("hashed::pass123!", user.PasswordHash);
+        Assert.Equal(UserOnboardingStatus.Pending, user.OnboardingStatus);
         Assert.Equal("User", role.Name);
         Assert.Equal("USER", role.NormalizedName);
         Assert.Equal(user.Id, userRole.UserId);

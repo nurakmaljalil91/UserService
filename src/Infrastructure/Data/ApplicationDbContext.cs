@@ -90,6 +90,78 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     /// <inheritdoc />
     public DbSet<Language> Languages => Set<Language>();
 
+    /// <inheritdoc />
+    public async Task<bool> SaveSuccessfulLoginAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        if (Database.IsInMemory())
+        {
+            await SaveChangesAsync(cancellationToken);
+            var user = await Users.FindAsync([userId], cancellationToken);
+            if (user?.OnboardingStatus != UserOnboardingStatus.Pending)
+            {
+                return false;
+            }
+
+            user.OnboardingStatus = UserOnboardingStatus.Prompted;
+            try
+            {
+                await SaveChangesAsync(cancellationToken);
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return false;
+            }
+        }
+
+        await using var transaction = await Database.BeginTransactionAsync(cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+
+        var claimed = await Users
+            .Where(user => user.Id == userId && user.OnboardingStatus == UserOnboardingStatus.Pending)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(
+                    user => user.OnboardingStatus,
+                    UserOnboardingStatus.Prompted),
+                cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
+        return claimed == 1;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TrySetOnboardingOutcomeAsync(
+        Guid userId,
+        UserOnboardingStatus outcome,
+        CancellationToken cancellationToken)
+    {
+        if (Database.IsInMemory())
+        {
+            var user = await Users.FindAsync([userId], cancellationToken);
+            if (user?.OnboardingStatus != UserOnboardingStatus.Prompted)
+            {
+                return false;
+            }
+
+            user.OnboardingStatus = outcome;
+            try
+            {
+                await SaveChangesAsync(cancellationToken);
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return false;
+            }
+        }
+
+        return await Users
+            .Where(user => user.Id == userId && user.OnboardingStatus == UserOnboardingStatus.Prompted)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(user => user.OnboardingStatus, outcome),
+                cancellationToken) == 1;
+    }
+
     /// <summary>
     /// Configures the entity model for the context.
     /// </summary>

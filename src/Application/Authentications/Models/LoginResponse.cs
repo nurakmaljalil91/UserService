@@ -11,5 +11,6 @@ public sealed record LoginResponse(
     string Token,
     DateTime ExpiresAt,
     string RefreshToken,
-    DateTime RefreshTokenExpiresAt
+    DateTime RefreshTokenExpiresAt,
+    bool ShowFirstLoginWelcome = false
 );

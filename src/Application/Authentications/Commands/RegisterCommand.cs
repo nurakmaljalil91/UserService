@@ -101,7 +101,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, BaseRespo
             TwoFactorEnabled = false,
             AccessFailedCount = 0,
             IsLocked = false,
-            IsDeleted = false
+            IsDeleted = false,
+            OnboardingStatus = UserOnboardingStatus.Pending
         };
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password ?? string.Empty);

@@ -84,6 +84,52 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     /// </summary>
     public DbSet<Language> Languages => Set<Language>();
 
+    /// <inheritdoc />
+    public async Task<bool> SaveSuccessfulLoginAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        await SaveChangesAsync(cancellationToken);
+        var user = await Users.FindAsync([userId], cancellationToken);
+        if (user?.OnboardingStatus != UserOnboardingStatus.Pending)
+        {
+            return false;
+        }
+
+        user.OnboardingStatus = UserOnboardingStatus.Prompted;
+        try
+        {
+            await SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TrySetOnboardingOutcomeAsync(
+        Guid userId,
+        UserOnboardingStatus outcome,
+        CancellationToken cancellationToken)
+    {
+        var user = await Users.FindAsync([userId], cancellationToken);
+        if (user?.OnboardingStatus != UserOnboardingStatus.Prompted)
+        {
+            return false;
+        }
+
+        user.OnboardingStatus = outcome;
+        try
+        {
+            await SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return false;
+        }
+    }
+
     /// <summary>
     /// Configures the entity mappings for the context.
     /// </summary>
@@ -91,6 +137,7 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>(builder => builder.HasKey(x => x.Id));
+        modelBuilder.Entity<User>().Property(user => user.OnboardingStatus).IsConcurrencyToken();
         modelBuilder.Entity<UserProfile>(builder => builder.HasKey(x => x.Id));
         modelBuilder.Entity<Session>(builder => builder.HasKey(x => x.Id));
         modelBuilder.Entity<ContactMethod>(builder => builder.HasKey(x => x.Id));

@@ -124,4 +124,19 @@ public interface IApplicationDbContext
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The number of state entries written to the database.</returns>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Saves a successful login and atomically claims its one-time welcome if eligible.
+    /// </summary>
+    /// <param name="userId">The authenticated user's identifier.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>Whether this login claimed the welcome.</returns>
+    Task<bool> SaveSuccessfulLoginAsync(Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>Atomically records an onboarding outcome for a prompted account.</summary>
+    /// <param name="userId">The authenticated user's identifier.</param>
+    /// <param name="outcome">Completed or skipped.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>Whether the state changed.</returns>
+    Task<bool> TrySetOnboardingOutcomeAsync(Guid userId, UserOnboardingStatus outcome, CancellationToken cancellationToken);
 }

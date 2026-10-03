@@ -68,6 +68,7 @@ public static class DependencyInjection
         services.AddScoped<IRequestHandler<LoginCommand, BaseResponse<LoginResponse>>, LoginCommandHandler>();
         services.AddScoped<IRequestHandler<RefreshTokenCommand, BaseResponse<LoginResponse>>, RefreshTokenCommandHandler>();
         services.AddScoped<IRequestHandler<RegisterCommand, BaseResponse<string>>, RegisterCommandHandler>();
+        services.AddScoped<IRequestHandler<SetOnboardingOutcomeCommand, BaseResponse<string>>, SetOnboardingOutcomeCommandHandler>();
         services.AddScoped<IRequestHandler<ResetPasswordCommand, BaseResponse<string>>, ResetPasswordCommandHandler>();
         services.AddScoped<IRequestHandler<CreateUserCommand, BaseResponse<UserDto>>, CreateUserCommandHandler>();
         services.AddScoped<IRequestHandler<AssignRoleToUserCommand, BaseResponse<UserDto>>, AssignRoleToUserCommandHandler>();

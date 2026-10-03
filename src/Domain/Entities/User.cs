@@ -67,6 +67,11 @@ public class User : BaseEntity<Guid>
     public bool IsDeleted { get; set; }
 
     /// <summary>
+    /// Gets or sets this account's first-login profile onboarding status.
+    /// </summary>
+    public UserOnboardingStatus OnboardingStatus { get; set; } = UserOnboardingStatus.Completed;
+
+    /// <summary>
     /// Gets or sets the password hash for the user.
     /// </summary>
     public string? PasswordHash { get; set; }

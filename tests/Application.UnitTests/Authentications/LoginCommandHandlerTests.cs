@@ -32,6 +32,7 @@ public class LoginCommandHandlerTests
         }, CancellationToken.None);
 
         Assert.True(result.Success);
+        Assert.False(result.Data!.ShowFirstLoginWelcome);
         var notification = Assert.Single(publisher.Notifications);
         Assert.Equal("UserService", notification.SourceService);
         Assert.Equal("UserFirstLogin", notification.SourceEventType);
@@ -41,6 +42,42 @@ public class LoginCommandHandlerTests
         var recipient = Assert.Single(notification.Recipients);
         Assert.Equal(user.Id.ToString(), recipient.RecipientId);
         Assert.Equal("firstuser", recipient.DisplayName);
+    }
+
+    /// <summary>Ensures an eligible account is prompted only once.</summary>
+    [Fact]
+    public async Task Handle_ReturnsWelcomeOnlyForFirstPendingLogin()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var user = CreateUser();
+        user.OnboardingStatus = UserOnboardingStatus.Pending;
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, new TestNotificationRequestPublisher());
+
+        var first = await handler.Handle(new LoginCommand { Username = user.Username, Password = "pass123!" }, CancellationToken.None);
+        var second = await handler.Handle(new LoginCommand { Username = user.Username, Password = "pass123!" }, CancellationToken.None);
+
+        Assert.True(first.Data!.ShowFirstLoginWelcome);
+        Assert.False(second.Data!.ShowFirstLoginWelcome);
+        Assert.Equal(UserOnboardingStatus.Prompted, user.OnboardingStatus);
+    }
+
+    /// <summary>Ensures invalid credentials do not consume onboarding eligibility.</summary>
+    [Fact]
+    public async Task Handle_FailedLoginKeepsOnboardingPending()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var user = CreateUser();
+        user.OnboardingStatus = UserOnboardingStatus.Pending;
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, new TestNotificationRequestPublisher());
+
+        var result = await handler.Handle(new LoginCommand { Username = user.Username, Password = "wrong" }, CancellationToken.None);
+
+        Assert.False(result.Success);
+        Assert.Equal(UserOnboardingStatus.Pending, user.OnboardingStatus);
     }
 
     /// <summary>
