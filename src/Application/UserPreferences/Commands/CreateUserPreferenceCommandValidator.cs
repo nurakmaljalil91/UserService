@@ -26,5 +26,9 @@ public class CreateUserPreferenceCommandValidator : AbstractValidator<CreateUser
         RuleFor(x => x.Value)
             .MaximumLength(MaxValueLength).When(x => x.Value != null)
             .WithMessage($"Preference value must not exceed {MaxValueLength} characters.");
+
+        RuleFor(x => x.Value)
+            .Must(TimeZonePreference.IsValidValue).When(x => TimeZonePreference.IsTimeZoneKey(x.Key))
+            .WithMessage(TimeZonePreference.InvalidValueMessage);
     }
 }

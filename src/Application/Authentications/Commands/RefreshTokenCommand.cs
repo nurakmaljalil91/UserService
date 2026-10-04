@@ -1,6 +1,7 @@
 #nullable enable
 using Application.Authentications.Models;
 using Application.Common.Interfaces;
+using Application.UserPreferences;
 using Domain.Common;
 using Domain.Entities;
 using FluentValidation;
@@ -91,7 +92,8 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, B
             return BaseResponse<LoginResponse>.Fail(InvalidRefreshTokenMessage);
         }
 
-        var jwtToken = JwtTokenFactory.Create(user, _configuration, _dateTime);
+        var timeZone = await TimeZonePreference.GetForUserAsync(_context, user.Id, cancellationToken);
+        var jwtToken = JwtTokenFactory.Create(user, _configuration, _dateTime, timeZone);
         if (!jwtToken.Success)
         {
             return BaseResponse<LoginResponse>.Fail(jwtToken.Error ?? "JWT configuration is missing.");

@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.IdentityModel.Tokens.Jwt;
 using Application.Authentications.Commands;
 using Application.UnitTests.TestInfrastructure;
 using Domain.Entities;
@@ -108,6 +109,39 @@ public class LoginCommandHandlerTests
 
         Assert.True(result.Success);
         Assert.Empty(publisher.Notifications);
+    }
+
+    /// <summary>Ensures the access token carries the zoneinfo claim when the user saved a time zone.</summary>
+    [Fact]
+    public async Task Handle_IncludesZoneInfoClaim_WhenTimeZonePreferenceExists()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var user = CreateUser();
+        context.Users.Add(user);
+        context.UserPreferences.Add(new UserPreference { UserId = user.Id, Key = "timezone", Value = "Asia/Singapore" });
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, new TestNotificationRequestPublisher());
+
+        var result = await handler.Handle(new LoginCommand { Username = user.Username, Password = "pass123!" }, CancellationToken.None);
+
+        var token = new JwtSecurityTokenHandler().ReadJwtToken(result.Data!.Token);
+        Assert.Equal("Asia/Singapore", token.Claims.Single(c => c.Type == "zoneinfo").Value);
+    }
+
+    /// <summary>Ensures the access token has no zoneinfo claim when the user has not saved a time zone.</summary>
+    [Fact]
+    public async Task Handle_OmitsZoneInfoClaim_WhenNoTimeZonePreference()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var user = CreateUser();
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, new TestNotificationRequestPublisher());
+
+        var result = await handler.Handle(new LoginCommand { Username = user.Username, Password = "pass123!" }, CancellationToken.None);
+
+        var token = new JwtSecurityTokenHandler().ReadJwtToken(result.Data!.Token);
+        Assert.DoesNotContain(token.Claims, c => c.Type == "zoneinfo");
     }
 
     private static LoginCommandHandler CreateHandler(

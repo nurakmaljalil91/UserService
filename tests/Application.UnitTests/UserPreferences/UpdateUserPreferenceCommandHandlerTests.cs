@@ -86,6 +86,77 @@ public class UpdateUserPreferenceCommandHandlerTests
     }
 
     /// <summary>
+    /// Ensures the handler rejects an invalid value for an existing time zone preference.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WhenTimeZoneValueInvalid_ThrowsValidationException()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var user = CreateUser();
+        var preference = new UserPreference { UserId = user.Id, Key = "timezone", Value = "Asia/Kuala_Lumpur" };
+        context.Users.Add(user);
+        context.UserPreferences.Add(preference);
+        await context.SaveChangesAsync();
+
+        var handler = new UpdateUserPreferenceCommandHandler(context);
+
+        var exception = await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new UpdateUserPreferenceCommand
+        {
+            Id = preference.Id,
+            Value = "UTC+7"
+        }, CancellationToken.None));
+
+        Assert.True(exception.Errors.ContainsKey(nameof(UpdateUserPreferenceCommand.Value)));
+    }
+
+    /// <summary>
+    /// Ensures the handler rejects renaming a preference to the time zone key when its value is not a time zone.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WhenRenamedToTimeZoneWithInvalidValue_ThrowsValidationException()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var user = CreateUser();
+        var preference = new UserPreference { UserId = user.Id, Key = "ui.theme", Value = "dark" };
+        context.Users.Add(user);
+        context.UserPreferences.Add(preference);
+        await context.SaveChangesAsync();
+
+        var handler = new UpdateUserPreferenceCommandHandler(context);
+
+        await Assert.ThrowsAsync<ValidationException>(() => handler.Handle(new UpdateUserPreferenceCommand
+        {
+            Id = preference.Id,
+            Key = "timezone"
+        }, CancellationToken.None));
+    }
+
+    /// <summary>
+    /// Ensures the handler accepts a valid IANA time zone value.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WhenTimeZoneValueValid_UpdatesPreference()
+    {
+        await using var context = TestDbContextFactory.Create();
+        var user = CreateUser();
+        var preference = new UserPreference { UserId = user.Id, Key = "timezone", Value = "UTC" };
+        context.Users.Add(user);
+        context.UserPreferences.Add(preference);
+        await context.SaveChangesAsync();
+
+        var handler = new UpdateUserPreferenceCommandHandler(context);
+
+        var result = await handler.Handle(new UpdateUserPreferenceCommand
+        {
+            Id = preference.Id,
+            Value = "Asia/Singapore"
+        }, CancellationToken.None);
+
+        Assert.True(result.Success);
+        Assert.Equal("Asia/Singapore", (await context.UserPreferences.SingleAsync(p => p.Id == preference.Id)).Value);
+    }
+
+    /// <summary>
     /// Creates a valid user entity for test scenarios.
     /// </summary>
     /// <returns>A configured <see cref="User"/> entity.</returns>

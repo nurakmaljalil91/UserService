@@ -3,6 +3,7 @@ using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Application.UserPreferences.Models;
 using Domain.Common;
+using FluentValidation.Results;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,6 +62,12 @@ public class UpdateUserPreferenceCommandHandler : IRequestHandler<UpdateUserPref
         if (request.Value != null)
         {
             preference.Value = request.Value.Trim();
+        }
+
+        if (TimeZonePreference.IsTimeZoneKey(preference.Key) && !TimeZonePreference.IsValidValue(preference.Value))
+        {
+            throw new ValidationException(
+                [new ValidationFailure(nameof(UpdateUserPreferenceCommand.Value), TimeZonePreference.InvalidValueMessage)]);
         }
 
         await _context.SaveChangesAsync(cancellationToken);

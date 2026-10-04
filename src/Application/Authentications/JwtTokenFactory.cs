@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Application.Common.Interfaces;
+using Application.UserPreferences;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -18,8 +19,9 @@ internal static class JwtTokenFactory
     private const string DefaultRole = "User";
     private const string RoleClaimType = "role";
     private const string PreferredUsernameClaimType = "preferred_username";
+    private const string ZoneInfoClaimType = "zoneinfo";
 
-    public static JwtTokenResult Create(User user, IConfiguration configuration, IDateTime dateTime)
+    public static JwtTokenResult Create(User user, IConfiguration configuration, IDateTime dateTime, string? timeZone = null)
     {
         var jwtSection = configuration.GetSection("Jwt");
         var issuer = jwtSection["Issuer"];
@@ -53,6 +55,11 @@ internal static class JwtTokenFactory
         if (!string.IsNullOrWhiteSpace(user.Email))
         {
             claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
+        }
+
+        if (TimeZonePreference.IsValidValue(timeZone))
+        {
+            claims.Add(new Claim(ZoneInfoClaimType, timeZone!.Trim()));
         }
 
         var roles = user.UserRoles
