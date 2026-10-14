@@ -141,4 +141,5 @@ jobs:
             -f "inputs[environment]=production" \
             -f "inputs[server]=production" \
             -f "inputs[service]=userservice" \
-            -f "inputs[image_tag]=$IMAGE_TAG"
+            -f "inputs[image_tag]=$IMAGE_TAG" \
+            -f "inputs[auto]=true"
