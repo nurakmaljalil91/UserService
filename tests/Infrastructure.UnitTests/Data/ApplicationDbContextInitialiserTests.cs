@@ -59,5 +59,31 @@ public class ApplicationDbContextInitialiserTests
         Assert.Equal(2, await context.Roles.CountAsync());
         Assert.Equal(3, await context.Groups.CountAsync());
         Assert.NotEmpty(await context.Permissions.ToListAsync());
+        Assert.Equal(
+            "Admin Profile",
+            (await context.UserProfiles.Include(p => p.User).SingleAsync(p => p.User!.NormalizedUsername == "ADMIN")).DisplayName);
+    }
+
+    /// <summary>
+    /// Verifies that the essential seed alone (as run outside Development) gives the admin
+    /// user a profile, which the user session and profile endpoints require.
+    /// </summary>
+    [Fact]
+    public async Task SeedEssentialAsync_CreatesAdminProfile()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new ApplicationDbContext(options);
+        var logger = NullLogger<ApplicationDbContextInitialiser>.Instance;
+        var initialiser = new ApplicationDbContextInitialiser(
+            logger, context, new PasswordHasherService(), new DevelopmentEnvironment());
+
+        await initialiser.SeedEssentialAsync();
+        await initialiser.SeedEssentialAsync();
+
+        var admin = await context.Users.SingleAsync(u => u.NormalizedUsername == "ADMIN");
+        Assert.Equal(1, await context.UserProfiles.CountAsync(p => p.UserId == admin.Id));
     }
 }

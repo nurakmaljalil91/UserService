@@ -276,6 +276,14 @@ public class ApplicationDbContextInitialiser
 
             await _context.SaveChangesAsync();
         }
+
+        // The user session and profile endpoints require a profile row, so the admin
+        // gets an empty one (as registration does) and fills it in during onboarding.
+        if (adminUser != null && !await _context.UserProfiles.AnyAsync(p => p.UserId == adminUser.Id))
+        {
+            _context.UserProfiles.Add(new UserProfile { UserId = adminUser.Id });
+            await _context.SaveChangesAsync();
+        }
     }
 
     /// <summary>
@@ -358,21 +366,28 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (adminUser != null && !await _context.UserProfiles.AnyAsync(p => p.UserId == adminUser.Id))
+        if (adminUser != null)
         {
-            _context.UserProfiles.Add(new UserProfile
+            // SeedEssentialAsync creates an empty admin profile; fill it with sample data.
+            var adminProfile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == adminUser.Id);
+            if (adminProfile == null)
             {
-                UserId = adminUser.Id,
-                DisplayName = "Admin Profile",
-                FirstName = "System",
-                LastName = "Admin",
-                DateOfBirth = new LocalDate(1988, 5, 10),
-                BirthPlace = "Kuala Lumpur",
-                Bio = "Seeded admin profile",
-                BloodType = "O+",
-                Tag = "admin"
-            });
-            await _context.SaveChangesAsync();
+                adminProfile = new UserProfile { UserId = adminUser.Id };
+                _context.UserProfiles.Add(adminProfile);
+            }
+
+            if (adminProfile.DisplayName == null)
+            {
+                adminProfile.DisplayName = "Admin Profile";
+                adminProfile.FirstName = "System";
+                adminProfile.LastName = "Admin";
+                adminProfile.DateOfBirth = new LocalDate(1988, 5, 10);
+                adminProfile.BirthPlace = "Kuala Lumpur";
+                adminProfile.Bio = "Seeded admin profile";
+                adminProfile.BloodType = "O+";
+                adminProfile.Tag = "admin";
+                await _context.SaveChangesAsync();
+            }
         }
 
         if (standardUser != null && !await _context.UserProfiles.AnyAsync(p => p.UserId == standardUser.Id))
