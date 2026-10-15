@@ -7,6 +7,8 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using WebAPI.Authorization;
+
 namespace WebAPI.Controllers;
 
 /// <summary>
@@ -14,7 +16,7 @@ namespace WebAPI.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = AuthorizationPolicies.InteractiveOnly)]
 public sealed class ExternalLinksController : ControllerBase
 {
     private readonly IMediator _mediator;

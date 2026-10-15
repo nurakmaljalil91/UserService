@@ -107,6 +107,11 @@ public class User : BaseEntity<Guid>
     public IList<Session> Sessions { get; private set; } = new List<Session>();
 
     /// <summary>
+    /// Gets the personal access tokens issued by the user.
+    /// </summary>
+    public IList<PersonalAccessToken> PersonalAccessTokens { get; private set; } = new List<PersonalAccessToken>();
+
+    /// <summary>
     /// Gets the contact methods associated with the user.
     /// </summary>
     public IList<ContactMethod> ContactMethods { get; private set; } = new List<ContactMethod>();

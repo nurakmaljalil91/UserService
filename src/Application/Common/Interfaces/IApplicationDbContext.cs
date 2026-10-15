@@ -24,6 +24,11 @@ public interface IApplicationDbContext
     DbSet<Session> Sessions { get; }
 
     /// <summary>
+    /// Gets the set of <see cref="PersonalAccessToken"/> entities.
+    /// </summary>
+    DbSet<PersonalAccessToken> PersonalAccessTokens { get; }
+
+    /// <summary>
     /// Gets the set of <see cref="ContactMethod"/> entities.
     /// </summary>
     DbSet<ContactMethod> ContactMethods { get; }

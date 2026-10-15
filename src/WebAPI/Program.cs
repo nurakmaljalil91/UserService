@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Serilog;
 using Serilog.Events;
+using WebAPI.Authorization;
 using WebAPI;
 using WebAPI.Middlewares;
 
@@ -75,6 +76,8 @@ try
     app.UseCors("CorsPolicy");
 
     app.UseAuthentication();
+
+    app.UseMiddleware<TokenScopeMiddleware>();
 
     app.UseAuthorization();
     // Liveness: just "is the process up?"

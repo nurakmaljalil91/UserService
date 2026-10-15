@@ -112,6 +112,11 @@ public static class DependencyInjection
         services.AddAuthorization(options =>
         {
             options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            options.AddPolicy(AuthorizationPolicies.InteractiveOnly, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireAssertion(context => !context.User.HasClaim(
+                    TokenScopeMiddleware.TokenUseClaimType,
+                    TokenScopeMiddleware.PersonalAccessTokenUse)));
             options.AddPolicy("PlannerService", policy => policy.RequireClaim("service", "planner"));
             options.FallbackPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
@@ -121,6 +126,7 @@ public static class DependencyInjection
         services.AddSingleton<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareResultHandler>();
 
         services.AddTransient<ExceptionHandlingMiddleware>();
+        services.AddTransient<TokenScopeMiddleware>();
 
         return services;
     }

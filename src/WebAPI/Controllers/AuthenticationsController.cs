@@ -57,6 +57,18 @@ public sealed class AuthenticationsController : ControllerBase
     }
 
     /// <summary>
+    /// Exchanges a personal access token for a short-lived access token carrying the token's scopes.
+    /// </summary>
+    /// <param name="command">The command containing the personal access token.</param>
+    /// <returns>The access token, or 401 when the personal access token is invalid, expired or revoked.</returns>
+    [HttpPost("token-exchange")]
+    public async Task<ActionResult<BaseResponse<TokenExchangeResponse>>> TokenExchange([FromBody] TokenExchangeCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return result.Success ? Ok(result) : Unauthorized(result);
+    }
+
+    /// <summary>
     /// Resets a user's password.
     /// </summary>
     [HttpPost("reset-password")]

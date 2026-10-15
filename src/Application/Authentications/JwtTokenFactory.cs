@@ -16,12 +16,22 @@ namespace Application.Authentications;
 internal static class JwtTokenFactory
 {
     private const int DefaultExpiryMinutes = 60;
+    private const int PersonalAccessTokenMaxExpiryMinutes = 15;
+    private const string ScopeClaimType = "scope";
+    private const string TokenUseClaimType = "token_use";
+    private const string PersonalAccessTokenUse = "pat";
+    private const string PersonalAccessTokenIdClaimType = "pat_id";
     private const string DefaultRole = "User";
     private const string RoleClaimType = "role";
     private const string PreferredUsernameClaimType = "preferred_username";
     private const string ZoneInfoClaimType = "zoneinfo";
 
-    public static JwtTokenResult Create(User user, IConfiguration configuration, IDateTime dateTime, string? timeZone = null)
+    public static JwtTokenResult Create(
+        User user,
+        IConfiguration configuration,
+        IDateTime dateTime,
+        string? timeZone = null,
+        PersonalAccessTokenGrant? grant = null)
     {
         var jwtSection = configuration.GetSection("Jwt");
         var issuer = jwtSection["Issuer"];
@@ -39,6 +49,11 @@ internal static class JwtTokenFactory
         if (int.TryParse(jwtSection["ExpiryMinutes"], out var configuredMinutes) && configuredMinutes > 0)
         {
             expiryMinutes = configuredMinutes;
+        }
+
+        if (grant is not null)
+        {
+            expiryMinutes = Math.Min(expiryMinutes, PersonalAccessTokenMaxExpiryMinutes);
         }
 
         var preferredUsername = string.IsNullOrWhiteSpace(user.Username) ? user.Email : user.Username;
@@ -78,6 +93,13 @@ internal static class JwtTokenFactory
             claims.Add(new Claim(RoleClaimType, role!));
         }
 
+        if (grant is not null)
+        {
+            claims.Add(new Claim(TokenUseClaimType, PersonalAccessTokenUse));
+            claims.Add(new Claim(PersonalAccessTokenIdClaimType, grant.TokenId.ToString()));
+            claims.AddRange(grant.Scopes.Select(scope => new Claim(ScopeClaimType, scope)));
+        }
+
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
         var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
         var expires = dateTime.UtcNow.AddMinutes(expiryMinutes);
@@ -107,3 +129,10 @@ internal sealed record JwtTokenResult(
     public static JwtTokenResult Fail(string error) =>
         new(false, error, string.Empty, DateTime.MinValue);
 }
+
+/// <summary>
+/// The personal access token an access token is being issued for.
+/// </summary>
+/// <param name="TokenId">The personal access token identifier.</param>
+/// <param name="Scopes">The scopes to embed, already expanded so that write implies read.</param>
+internal sealed record PersonalAccessTokenGrant(Guid TokenId, IReadOnlyList<string> Scopes);

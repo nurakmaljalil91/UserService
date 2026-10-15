@@ -25,6 +25,8 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
 
     public DbSet<Session> Sessions => Set<Session>();
 
+    public DbSet<PersonalAccessToken> PersonalAccessTokens => Set<PersonalAccessToken>();
+
     public DbSet<ContactMethod> ContactMethods => Set<ContactMethod>();
 
     public DbSet<Address> Addresses => Set<Address>();

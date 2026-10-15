@@ -34,6 +34,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Session> Sessions => Set<Session>();
 
     /// <inheritdoc />
+    public DbSet<PersonalAccessToken> PersonalAccessTokens => Set<PersonalAccessToken>();
+
+    /// <inheritdoc />
     public DbSet<ContactMethod> ContactMethods => Set<ContactMethod>();
 
     /// <inheritdoc />
